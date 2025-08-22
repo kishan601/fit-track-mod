@@ -1,5 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { Target, Flame, Dumbbell, Clock } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Target, Flame, Dumbbell, Clock, Edit2, Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
 import type { Workout } from "@shared/schema";
 
 interface DailyStats {
@@ -9,9 +13,39 @@ interface DailyStats {
 }
 
 export function FitnessGoals() {
+  const [editingTarget, setEditingTarget] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
+  const queryClient = useQueryClient();
+  
   const { data: workouts } = useQuery<Workout[]>({
     queryKey: ["/api/workouts"],
   });
+
+  // For demo purposes, we'll use local state for targets
+  const [targets, setTargets] = useState({
+    calories: 600,
+    workouts: 3,
+    activeTime: 90
+  });
+
+  const startEditTarget = (goalType: string, currentTarget: number) => {
+    setEditingTarget(goalType);
+    setEditValue(currentTarget.toString());
+  };
+
+  const saveTarget = (goalType: string) => {
+    const value = parseInt(editValue);
+    if (value && value > 0) {
+      setTargets(prev => ({ ...prev, [goalType]: value }));
+      setEditingTarget(null);
+      setEditValue("");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingTarget(null);
+    setEditValue("");
+  };
 
   const getTodayStats = (): DailyStats => {
     if (!workouts) {
@@ -35,9 +69,9 @@ export function FitnessGoals() {
     const totalDuration = todayWorkouts.reduce((sum, workout) => sum + workout.duration, 0);
 
     return {
-      calories: { current: totalCalories, target: 600 },
-      workouts: { current: todayWorkouts.length, target: 3 },
-      activeTime: { current: totalDuration, target: 90 },
+      calories: { current: totalCalories, target: targets.calories },
+      workouts: { current: todayWorkouts.length, target: targets.workouts },
+      activeTime: { current: totalDuration, target: targets.activeTime },
     };
   };
 
@@ -108,7 +142,7 @@ export function FitnessGoals() {
 
       <div className="space-y-6">
         {goals.map((goal, index) => (
-          <div key={goal.title} className="space-y-3" data-testid={`goal-${goal.title.toLowerCase().replace(' ', '-')}`}>
+          <div key={goal.title} className="space-y-3 group" data-testid={`goal-${goal.title.toLowerCase().replace(' ', '-')}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className={`w-8 h-8 ${goal.bgColor} rounded-lg flex items-center justify-center`}>
@@ -116,9 +150,55 @@ export function FitnessGoals() {
                 </div>
                 <div>
                   <p className="font-medium text-slate-900 dark:text-slate-50">{goal.title}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {goal.current} / {goal.target} {goal.unit}
-                  </p>
+                  <div className="flex items-center space-x-1">
+                    {editingTarget === goal.title.toLowerCase().replace(' ', '') ? (
+                      <div className="flex items-center space-x-1">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">{goal.current} / </span>
+                        <Input
+                          type="number"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="w-16 h-6 text-xs p-1"
+                          min="1"
+                          data-testid={`input-target-${goal.title.toLowerCase().replace(' ', '-')}`}
+                        />
+                        <span className="text-xs text-slate-600 dark:text-slate-400">{goal.unit}</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30"
+                          onClick={() => saveTarget(goal.title.toLowerCase().replace(' ', ''))}
+                          data-testid={`button-save-target-${goal.title.toLowerCase().replace(' ', '-')}`}
+                        >
+                          <Check size={10} className="text-green-600" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+                          onClick={cancelEdit}
+                          data-testid={`button-cancel-target-${goal.title.toLowerCase().replace(' ', '-')}`}
+                        >
+                          <X size={10} className="text-red-600" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                          {goal.current} / {goal.target} {goal.unit}
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 w-5 p-0 hover:bg-slate-100 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => startEditTarget(goal.title.toLowerCase().replace(' ', ''), goal.target)}
+                          data-testid={`button-edit-target-${goal.title.toLowerCase().replace(' ', '-')}`}
+                        >
+                          <Edit2 size={8} className="text-slate-500" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="text-right">

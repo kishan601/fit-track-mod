@@ -17,6 +17,7 @@ const workoutSchema = z.object({
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute"),
   calories: z.coerce.number().min(1, "Calories must be at least 1"),
   intensity: z.enum(["low", "medium", "high"]),
+  date: z.string().min(1, "Please select a date"),
   notes: z.string().optional(),
 });
 
@@ -43,13 +44,18 @@ export function AddWorkoutForm() {
       duration: 0,
       calories: 0,
       intensity: "medium",
+      date: new Date().toISOString().split('T')[0], // Today's date
       notes: "",
     },
   });
 
   const addWorkoutMutation = useMutation({
     mutationFn: async (data: WorkoutFormData) => {
-      const response = await apiRequest("POST", "/api/workouts", data);
+      const workoutData = {
+        ...data,
+        date: new Date(data.date)
+      };
+      const response = await apiRequest("POST", "/api/workouts", workoutData);
       return response.json();
     },
     onSuccess: () => {
@@ -59,7 +65,14 @@ export function AddWorkoutForm() {
         title: "Workout Added!",
         description: "Your workout has been successfully logged.",
       });
-      form.reset();
+      form.reset({
+        exerciseType: "",
+        duration: 0,
+        calories: 0,
+        intensity: "medium",
+        date: new Date().toISOString().split('T')[0],
+        notes: "",
+      });
       setSelectedIntensity("");
     },
     onError: () => {
@@ -179,6 +192,27 @@ export function AddWorkoutForm() {
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Date
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="date"
+                    {...field}
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent transition-all duration-200"
+                    data-testid="input-date"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}

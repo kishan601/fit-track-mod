@@ -96,7 +96,7 @@ export function RecentActivities() {
     );
   }
 
-  const recentWorkouts = workouts?.slice(0, 5) || [];
+  const recentWorkouts = workouts || [];
 
   return (
     <div className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up" style={{ animationDelay: "0.2s" }}>
@@ -114,7 +114,7 @@ export function RecentActivities() {
         </Button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent">
         {recentWorkouts.length === 0 ? (
           <div className="text-center py-8 text-slate-500 dark:text-slate-400">
             <p>No workouts yet. Add your first workout to get started!</p>

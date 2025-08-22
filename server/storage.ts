@@ -80,7 +80,7 @@ export class MemStorage implements IStorage {
       notes: insertWorkout.notes || null,
       id, 
       userId, 
-      date: new Date() 
+      date: insertWorkout.date ? new Date(insertWorkout.date) : new Date() 
     };
     this.workouts.set(id, workout);
     return workout;
