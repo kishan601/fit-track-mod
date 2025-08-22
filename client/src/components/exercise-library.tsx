@@ -10,7 +10,7 @@ export function ExerciseLibrary() {
 
   if (isLoading) {
     return (
-      <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up">
+      <div className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up">
         <div className="animate-pulse">
           <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-2" />
           <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-6" />
@@ -27,7 +27,7 @@ export function ExerciseLibrary() {
   const popularExercises = exercises?.slice(0, 4) || [];
 
   return (
-    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up" style={{ animationDelay: "0.3s" }}>
+    <div className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up" style={{ animationDelay: "0.3s" }}>
       <div className="flex items-center space-x-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-accent to-blue-600 rounded-xl flex items-center justify-center">
           <Book className="text-white" size={20} />

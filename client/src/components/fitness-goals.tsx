@@ -95,7 +95,7 @@ export function FitnessGoals() {
   ];
 
   return (
-    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up" style={{ animationDelay: "0.2s" }}>
+    <div className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up" style={{ animationDelay: "0.2s" }}>
       <div className="flex items-center space-x-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-success to-green-600 rounded-xl flex items-center justify-center">
           <Target className="text-white" size={20} />

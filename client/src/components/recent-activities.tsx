@@ -46,7 +46,7 @@ export function RecentActivities() {
 
   if (isLoading) {
     return (
-      <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up">
+      <div className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up">
         <div className="animate-pulse">
           <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-2" />
           <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-6" />
@@ -63,7 +63,7 @@ export function RecentActivities() {
   const recentWorkouts = workouts?.slice(0, 5) || [];
 
   return (
-    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up" style={{ animationDelay: "0.2s" }}>
+    <div className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up" style={{ animationDelay: "0.2s" }}>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-1">Recent Activities</h3>
