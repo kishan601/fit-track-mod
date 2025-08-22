@@ -164,6 +164,17 @@ export default function Dashboard() {
         <Button
           size="icon"
           className="w-14 h-14 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-500/30"
+          onClick={() => {
+            const addWorkoutForm = document.querySelector('[data-testid="add-workout-form"]');
+            if (addWorkoutForm) {
+              addWorkoutForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Focus the first input in the form
+              const firstInput = addWorkoutForm.querySelector('input, select, textarea') as HTMLElement;
+              if (firstInput) {
+                setTimeout(() => firstInput.focus(), 500);
+              }
+            }
+          }}
           data-testid="fab-add-workout"
         >
           <Plus size={20} />

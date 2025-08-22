@@ -28,6 +28,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/workouts/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const workout = await storage.updateWorkout(id, updates);
+      if (!workout) {
+        return res.status(404).json({ message: "Workout not found" });
+      }
+      res.json(workout);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update workout" });
+    }
+  });
+
   app.get("/api/workouts/weekly", async (req, res) => {
     try {
       const userId = "demo-user";

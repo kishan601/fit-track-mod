@@ -8,6 +8,7 @@ export interface IStorage {
   
   getWorkouts(userId: string): Promise<Workout[]>;
   createWorkout(userId: string, workout: InsertWorkout): Promise<Workout>;
+  updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<Workout | undefined>;
   getWorkoutsByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Workout[]>;
   
   getExercises(): Promise<Exercise[]>;
@@ -75,13 +76,24 @@ export class MemStorage implements IStorage {
   async createWorkout(userId: string, insertWorkout: InsertWorkout): Promise<Workout> {
     const id = randomUUID();
     const workout: Workout = { 
-      ...insertWorkout, 
+      ...insertWorkout,
+      notes: insertWorkout.notes || null,
       id, 
       userId, 
       date: new Date() 
     };
     this.workouts.set(id, workout);
     return workout;
+  }
+
+  async updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<Workout | undefined> {
+    const workout = this.workouts.get(workoutId);
+    if (workout) {
+      const updatedWorkout = { ...workout, ...updates };
+      this.workouts.set(workoutId, updatedWorkout);
+      return updatedWorkout;
+    }
+    return undefined;
   }
 
   async getWorkoutsByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Workout[]> {

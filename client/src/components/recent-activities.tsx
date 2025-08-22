@@ -1,6 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Clock, Flame } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ChevronRight, Clock, Flame, Edit2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
 import type { Workout } from "@shared/schema";
 
 const exerciseIcons: Record<string, string> = {
@@ -28,9 +31,42 @@ const intensityColors: Record<string, string> = {
 };
 
 export function RecentActivities() {
+  const [editingCalories, setEditingCalories] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
+  const queryClient = useQueryClient();
+  
   const { data: workouts, isLoading } = useQuery<Workout[]>({
     queryKey: ["/api/workouts"],
   });
+
+  const updateCaloriesMutation = useMutation({
+    mutationFn: async ({ workoutId, calories }: { workoutId: string; calories: number }) => {
+      return apiRequest("PATCH", `/api/workouts/${workoutId}`, { calories });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/workouts/weekly"] });
+      setEditingCalories(null);
+      setEditValue("");
+    },
+  });
+
+  const startEditCalories = (workoutId: string, currentCalories: number) => {
+    setEditingCalories(workoutId);
+    setEditValue(currentCalories.toString());
+  };
+
+  const saveCalories = (workoutId: string) => {
+    const calories = parseInt(editValue);
+    if (calories && calories > 0) {
+      updateCaloriesMutation.mutate({ workoutId, calories });
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingCalories(null);
+    setEditValue("");
+  };
 
   const formatTimeAgo = (date: Date) => {
     const now = new Date();
@@ -107,10 +143,57 @@ export function RecentActivities() {
                     <Clock className="inline mr-1" size={12} />
                     {workout.duration} min
                   </span>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">
-                    <Flame className="inline mr-1" size={12} />
-                    {workout.calories} cal
-                  </span>
+                  <div className="flex items-center space-x-1">
+                    {editingCalories === workout.id ? (
+                      <div className="flex items-center space-x-1">
+                        <Flame className="text-slate-600 dark:text-slate-400" size={12} />
+                        <Input
+                          type="number"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="w-16 h-6 text-xs p-1"
+                          min="1"
+                          data-testid={`input-calories-${workout.id}`}
+                        />
+                        <span className="text-xs text-slate-600 dark:text-slate-400">cal</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-900/30"
+                          onClick={() => saveCalories(workout.id)}
+                          disabled={updateCaloriesMutation.isPending}
+                          data-testid={`button-save-calories-${workout.id}`}
+                        >
+                          <Check size={12} className="text-green-600" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+                          onClick={cancelEdit}
+                          data-testid={`button-cancel-calories-${workout.id}`}
+                        >
+                          <X size={12} className="text-red-600" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-1">
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          <Flame className="inline mr-1" size={12} />
+                          {workout.calories} cal
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 hover:bg-slate-100 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => startEditCalories(workout.id, workout.calories)}
+                          data-testid={`button-edit-calories-${workout.id}`}
+                        >
+                          <Edit2 size={10} className="text-slate-500" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                   <span className={`px-2 py-1 text-xs rounded-full ${intensityColors[workout.intensity]}`}>
                     {workout.intensity.charAt(0).toUpperCase() + workout.intensity.slice(1)}
                   </span>
