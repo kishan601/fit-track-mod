@@ -58,7 +58,7 @@ export default function Dashboard() {
 
         {/* Quick Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group">
+          <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-blue-800/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">🏃‍♂️</span>
@@ -78,7 +78,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.1s" }}>
+          <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-blue-800/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.1s" }}>
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">🔥</span>
@@ -98,7 +98,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.2s" }}>
+          <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-blue-800/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.2s" }}>
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">⏱️</span>
@@ -118,7 +118,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.3s" }}>
+          <div className="bg-white/80 dark:bg-slate-900/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-blue-800/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.3s" }}>
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-success to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">🏆</span>

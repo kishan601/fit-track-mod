@@ -79,6 +79,9 @@ export default {
           DEFAULT: "var(--success)",
           600: "var(--success-600)",
         },
+        slate: {
+          900: "hsl(224, 71%, 4%)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
