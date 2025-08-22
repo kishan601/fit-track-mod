@@ -36,7 +36,7 @@ export default function Dashboard() {
   const todayStats = getTodayStats();
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+    <div className="min-h-screen bg-blue-50 dark:bg-background transition-colors duration-300">
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
@@ -44,13 +44,13 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-                Welcome back, <span className="text-coral-500">Alex</span>! 👋
+              <h2 className="text-3xl font-bold text-foreground mb-2">
+                Welcome back, <span className="text-blue-500">Alex</span>! 👋
               </h2>
-              <p className="text-slate-600 dark:text-slate-400">Let's crush your fitness goals today</p>
+              <p className="text-muted-foreground">Let's crush your fitness goals today</p>
             </div>
-            <div className="flex items-center space-x-2 bg-gradient-to-r from-coral-500/10 to-teal-500/10 dark:from-coral-500/20 dark:to-teal-500/20 px-4 py-2 rounded-xl border border-coral-200 dark:border-coral-800">
-              <span className="text-coral-500">🔥</span>
+            <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-sky-500/10 dark:from-blue-500/20 dark:to-sky-500/20 px-4 py-2 rounded-xl border border-blue-200 dark:border-blue-800">
+              <span className="text-blue-500">🔥</span>
               <span className="text-sm font-medium">🔥 7 day streak!</span>
             </div>
           </div>
@@ -58,78 +58,78 @@ export default function Dashboard() {
 
         {/* Quick Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group">
+          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-coral-500 to-coral-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">🏃‍♂️</span>
               </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-muted-foreground bg-accent px-2 py-1 rounded-full">
                 Today
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1">
+            <h3 className="text-2xl font-bold text-foreground mb-1">
               {todayStats.workouts}
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Workouts</p>
+            <p className="text-sm text-muted-foreground">Workouts</p>
             <div className="mt-3 flex items-center text-xs">
               <span className="text-success mr-1">↗</span>
               <span className="text-success font-medium">+15%</span>
-              <span className="text-slate-500 dark:text-slate-400 ml-1">vs yesterday</span>
+              <span className="text-muted-foreground ml-1">vs yesterday</span>
             </div>
           </div>
 
-          <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.1s" }}>
+          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.1s" }}>
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">🔥</span>
               </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-muted-foreground bg-accent px-2 py-1 rounded-full">
                 Today
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1">
+            <h3 className="text-2xl font-bold text-foreground mb-1">
               {todayStats.calories}
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Calories Burned</p>
+            <p className="text-sm text-muted-foreground">Calories Burned</p>
             <div className="mt-3 flex items-center text-xs">
               <span className="text-success mr-1">↗</span>
               <span className="text-success font-medium">+8%</span>
-              <span className="text-slate-500 dark:text-slate-400 ml-1">vs yesterday</span>
+              <span className="text-muted-foreground ml-1">vs yesterday</span>
             </div>
           </div>
 
-          <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.2s" }}>
+          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.2s" }}>
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">⏱️</span>
               </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-muted-foreground bg-accent px-2 py-1 rounded-full">
                 Today
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1">
+            <h3 className="text-2xl font-bold text-foreground mb-1">
               {todayStats.duration}
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Minutes Active</p>
+            <p className="text-sm text-muted-foreground">Minutes Active</p>
             <div className="mt-3 flex items-center text-xs">
               <span className="text-success mr-1">↗</span>
               <span className="text-success font-medium">+22%</span>
-              <span className="text-slate-500 dark:text-slate-400 ml-1">vs yesterday</span>
+              <span className="text-muted-foreground ml-1">vs yesterday</span>
             </div>
           </div>
 
-          <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.3s" }}>
+          <div className="bg-white/80 dark:bg-card/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-border shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style={{ animationDelay: "0.3s" }}>
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-success to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                 <span className="text-white text-lg">🏆</span>
               </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-muted-foreground bg-accent px-2 py-1 rounded-full">
                 This Week
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1">3/4</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Goals Achieved</p>
-            <div className="mt-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+            <h3 className="text-2xl font-bold text-foreground mb-1">3/4</h3>
+            <p className="text-sm text-muted-foreground">Goals Achieved</p>
+            <div className="mt-3 w-full bg-muted rounded-full h-2">
               <div
                 className="bg-gradient-to-r from-success to-green-600 h-2 rounded-full animate-progress"
                 style={{ width: "75%", transformOrigin: "left" }}
@@ -159,7 +159,7 @@ export default function Dashboard() {
       <div className="fixed bottom-6 right-6 md:hidden">
         <Button
           size="icon"
-          className="w-14 h-14 bg-gradient-to-r from-coral-500 to-coral-600 hover:from-coral-600 hover:to-coral-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-coral-500/30"
+          className="w-14 h-14 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-500/30"
           data-testid="fab-add-workout"
         >
           <Plus size={20} />
