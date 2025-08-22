@@ -36,7 +36,10 @@ export function FitnessGoals() {
   const saveTarget = (goalType: string) => {
     const value = parseInt(editValue);
     if (value && value > 0) {
-      setTargets(prev => ({ ...prev, [goalType]: value }));
+      // Map the goal types to the correct target keys
+      const targetKey = goalType === 'caloriesburned' ? 'calories' : 
+                       goalType === 'activetime' ? 'activeTime' : goalType;
+      setTargets(prev => ({ ...prev, [targetKey]: value }));
       setEditingTarget(null);
       setEditValue("");
     }
@@ -142,7 +145,7 @@ export function FitnessGoals() {
 
       <div className="space-y-6">
         {goals.map((goal, index) => (
-          <div key={goal.title} className="space-y-3 group" data-testid={`goal-${goal.title.toLowerCase().replace(' ', '-')}`}>
+          <div key={goal.title} className="space-y-3 group hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg p-2 transition-colors" data-testid={`goal-${goal.title.toLowerCase().replace(' ', '-')}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className={`w-8 h-8 ${goal.bgColor} rounded-lg flex items-center justify-center`}>

@@ -23,7 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertWorkoutSchema.parse(req.body);
       const workout = await storage.createWorkout(userId, validatedData);
       res.json(workout);
-    } catch (error) {
+    } catch (error: any) {
       res.status(400).json({ message: "Invalid workout data" });
     }
   });

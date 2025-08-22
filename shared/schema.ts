@@ -45,6 +45,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertWorkoutSchema = createInsertSchema(workouts).omit({
   id: true,
   userId: true,
+}).extend({
+  date: z.coerce.date().optional()
 });
 
 export const insertExerciseSchema = createInsertSchema(exercises).omit({

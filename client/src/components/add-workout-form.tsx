@@ -51,9 +51,10 @@ export function AddWorkoutForm() {
 
   const addWorkoutMutation = useMutation({
     mutationFn: async (data: WorkoutFormData) => {
+      // Convert date string to Date object for backend
       const workoutData = {
         ...data,
-        date: new Date(data.date)
+        date: new Date(data.date + 'T12:00:00.000Z') // Add time to avoid timezone issues
       };
       const response = await apiRequest("POST", "/api/workouts", workoutData);
       return response.json();
