@@ -138,20 +138,24 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column */}
-          <div className="space-y-8">
-            <WeeklyProgress />
-            <RecentActivities />
-          </div>
+        {/* Main Content Grid - 2x2 Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Top Left */}
+          <WeeklyProgress />
+          
+          {/* Top Right */}
+          <AddWorkoutForm />
+          
+          {/* Bottom Left */}
+          <RecentActivities />
+          
+          {/* Bottom Right */}
+          <FitnessGoals />
+        </div>
 
-          {/* Right Column */}
-          <div className="space-y-8">
-            <AddWorkoutForm />
-            <FitnessGoals />
-            <ExerciseLibrary />
-          </div>
+        {/* Exercise Library - Full Width Below Grid */}
+        <div className="mt-8">
+          <ExerciseLibrary />
         </div>
       </main>
 
