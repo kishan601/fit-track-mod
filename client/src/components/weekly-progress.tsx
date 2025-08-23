@@ -130,10 +130,10 @@ export function WeeklyProgress() {
 
       {/* Chart Area */}
       <div className="h-96 relative" data-testid="weekly-progress-chart">
-        <div className="absolute top-0 left-0 right-0 bottom-24 flex items-end justify-between px-4">
+        <div className="absolute top-0 left-0 right-0 bottom-24 flex items-end justify-center gap-1 sm:gap-2 md:gap-4 px-2 sm:px-4">
           {weeklyData.map((day, index) => (
-            <div key={day.day} className="flex flex-col items-center flex-1">
-              <div className="w-full max-w-16 h-48 bg-slate-200 dark:bg-slate-700 rounded-lg relative overflow-hidden mb-3">
+            <div key={day.day} className="flex flex-col items-center">
+              <div className="w-8 sm:w-12 md:w-16 h-48 bg-slate-200 dark:bg-slate-700 rounded-lg relative overflow-hidden mb-3">
                 <div
                   className={`bg-gradient-to-t ${day.color} rounded-lg transition-all duration-1000 ease-out hover:opacity-80 hover:scale-105 transform`}
                   style={{
@@ -149,18 +149,20 @@ export function WeeklyProgress() {
         </div>
         
         {/* Labels positioned absolutely at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-between px-4">
+        <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-1 sm:gap-2 md:gap-4 px-2 sm:px-4">
           {weeklyData.map((day, index) => (
-            <div key={`label-${day.day}`} className="flex flex-col items-center space-y-1 flex-1">
-              <div className={`text-sm font-semibold ${day.day === 'Fri' && new Date().getDay() === 5 ? 'text-coral-500 dark:text-coral-400 font-bold' : 'text-slate-600 dark:text-slate-400'}`}>
+            <div key={`label-${day.day}`} className="flex flex-col items-center space-y-1 w-8 sm:w-12 md:w-16">
+              <div className={`text-xs sm:text-sm font-semibold ${day.day === 'Fri' && new Date().getDay() === 5 ? 'text-coral-500 dark:text-coral-400 font-bold' : 'text-slate-600 dark:text-slate-400'}`}>
                 {day.day}
               </div>
-              <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {day.calories} cal
+              <div className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
+                <span className="hidden sm:inline">{day.calories} cal</span>
+                <span className="sm:hidden">{day.calories}</span>
               </div>
               {day.duration > 0 && (
-                <div className="text-xs text-slate-500 dark:text-slate-500">
-                  {day.duration}min • {day.workouts} workout{day.workouts > 1 ? 's' : ''}
+                <div className="text-xs text-slate-500 dark:text-slate-500 text-center leading-tight">
+                  <span className="hidden sm:inline">{day.duration}min • {day.workouts} workout{day.workouts > 1 ? 's' : ''}</span>
+                  <span className="sm:hidden">{day.duration}m</span>
                 </div>
               )}
             </div>
