@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Plus, Edit2, Clock } from "lucide-react";
 import { Header } from "@/components/header";
 import { AddWorkoutForm } from "@/components/add-workout-form";
 import { WeeklyProgress } from "@/components/weekly-progress";
@@ -7,12 +8,38 @@ import { RecentActivities } from "@/components/recent-activities";
 import { FitnessGoals } from "@/components/fitness-goals";
 import { ExerciseLibrary } from "@/components/exercise-library";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Workout } from "@shared/schema";
 
 export default function Dashboard() {
+  const [userName, setUserName] = useState("Alex");
+  const [isEditingName, setIsEditingName] = useState(false);
+  
   const { data: workouts } = useQuery<Workout[]>({
     queryKey: ["/api/workouts"],
   });
+
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    return now.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const handleNameEdit = () => {
+    setIsEditingName(!isEditingName);
+  };
+
+  const handleNameSave = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setIsEditingName(false);
+    }
+  };
 
   const getTodayStats = () => {
     if (!workouts) return { workouts: 0, calories: 0, duration: 0 };
@@ -44,14 +71,36 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
             <div>
-              <h2 className="text-3xl font-bold text-foreground mb-2">
-                Welcome back, <span className="text-blue-500">Alex</span>! 👋
-              </h2>
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="text-3xl font-bold text-foreground">
+                  Welcome back, {isEditingName ? (
+                    <Input
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                      onKeyDown={handleNameSave}
+                      onBlur={() => setIsEditingName(false)}
+                      className="inline-block w-auto min-w-[100px] text-blue-500 text-3xl font-bold bg-transparent border-0 border-b-2 border-blue-500 rounded-none px-1 py-0 h-auto focus-visible:ring-0"
+                      autoFocus
+                    />
+                  ) : (
+                    <span className="text-blue-500">{userName}</span>
+                  )}! 👋
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNameEdit}
+                  className="h-8 w-8 p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors"
+                  data-testid="button-edit-name"
+                >
+                  <Edit2 size={16} className="text-blue-500" />
+                </Button>
+              </div>
               <p className="text-muted-foreground">Let's crush your fitness goals today</p>
             </div>
-            <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-sky-500/10 dark:from-blue-500/20 dark:to-sky-500/20 px-4 py-2 rounded-xl border border-blue-200 dark:border-blue-800">
-              <span className="text-blue-500">🔥</span>
-              <span className="text-sm font-medium">🔥 7 day streak!</span>
+            <div className="flex items-center space-x-2 bg-gradient-to-r from-slate-500/10 to-slate-600/10 dark:from-slate-500/20 dark:to-slate-600/20 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+              <Clock size={16} className="text-slate-600 dark:text-slate-400" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{getCurrentDateTime()}</span>
             </div>
           </div>
         </div>
