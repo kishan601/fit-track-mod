@@ -60,12 +60,13 @@ export function AddWorkoutForm() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/workouts/weekly"] });
-      toast({
-        title: "Workout Added!",
-        description: "Your workout has been successfully logged.",
-      });
+  // Invalidate specific queries instead of clearing all cache
+  queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
+  queryClient.invalidateQueries({ queryKey: ["/api/workouts/weekly"] });
+  toast({
+    title: "Workout Added!",
+    description: "Your workout has been successfully logged.",
+  });
       form.reset({
         exerciseType: "",
         duration: 0,
@@ -230,7 +231,7 @@ export function AddWorkoutForm() {
                     onClick={() => handleIntensitySelect("low")}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       selectedIntensity === "low"
-                        ? "bg-accent/20 text-accent"
+                       ? "bg-yellow-50 text-yellow-600"  // ← This should be YELLOW instead
                         : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-accent/20 hover:text-accent"
                     }`}
                     data-testid="button-intensity-low"
@@ -256,7 +257,7 @@ export function AddWorkoutForm() {
                     onClick={() => handleIntensitySelect("high")}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       selectedIntensity === "high"
-                        ? "bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400"
+                        ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
                         : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-coral-50 hover:text-coral-600"
                     }`}
                     data-testid="button-intensity-high"

@@ -8,13 +8,18 @@ interface WeeklyData {
   day: string;
   calories: number;
   workouts: number;
+  duration: number;
+  activityScore: number;
   color: string;
 }
 
 export function WeeklyProgress() {
-  const { data: weeklyWorkouts, isLoading, refetch } = useQuery<Workout[]>({
+  const { data: weeklyWorkouts, isLoading, refetch, error } = useQuery<Workout[]>({
     queryKey: ["/api/workouts/weekly"],
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
+
 
   const getWeeklyData = (): WeeklyData[] => {
     if (!weeklyWorkouts) return [];
@@ -43,34 +48,43 @@ export function WeeklyProgress() {
         switch (primaryType) {
           case "running":
           case "strength":
-            color = "from-coral-500 to-coral-400";
+            color = "from-red-500 to-orange-400";
             break;
           case "cycling":
           case "swimming":
-            color = "from-teal-500 to-teal-400";
+            color = "from-teal-500 to-cyan-400";
             break;
           case "yoga":
-            color = "from-accent to-blue-400";
+            color = "from-purple-500 to-indigo-400";
             break;
           case "hiit":
-            color = "from-success to-green-400";
+            color = "from-green-500 to-emerald-400";
             break;
           default:
-            color = "from-coral-500 to-coral-400";
+            color = "from-blue-500 to-blue-400";
         }
       }
+
+      // Calculate activity score combining calories and duration
+      const totalDuration = dayWorkouts.reduce((sum, workout) => sum + workout.duration, 0);
+      const activityScore = totalCalories * 0.4 + totalDuration * 2 * 0.6; // Duration weighted more heavily
 
       return {
         day,
         calories: totalCalories,
         workouts: workoutCount,
+        duration: totalDuration,
+        activityScore,
         color,
       };
     });
   };
 
   const weeklyData = getWeeklyData();
-  const maxCalories = Math.max(...weeklyData.map(d => d.calories), 100);
+  
+  // Calculate dynamic scaling based on actual user data
+  const activityScores = weeklyData.map(day => day.activityScore);
+  const maxActivityScore = Math.max(...activityScores, 50); // Minimum of 50 for better scaling
 
   if (isLoading) {
     return (
@@ -115,27 +129,40 @@ export function WeeklyProgress() {
       </div>
 
       {/* Chart Area */}
-      <div className="h-64 relative" data-testid="weekly-progress-chart">
-        <div className="absolute inset-0 flex items-end justify-between px-2">
+      <div className="h-96 relative" data-testid="weekly-progress-chart">
+        <div className="absolute top-0 left-0 right-0 bottom-24 flex items-end justify-between px-4">
           {weeklyData.map((day, index) => (
-            <div key={day.day} className="flex flex-col items-center space-y-2 flex-1">
-              <div className="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+            <div key={day.day} className="flex flex-col items-center flex-1">
+              <div className="w-full max-w-16 h-48 bg-slate-200 dark:bg-slate-700 rounded-lg relative overflow-hidden mb-3">
                 <div
-                  className={`bg-gradient-to-t ${day.color} rounded-t-lg transition-all duration-1000 ease-out hover:opacity-80`}
+                  className={`bg-gradient-to-t ${day.color} rounded-lg transition-all duration-1000 ease-out hover:opacity-80 hover:scale-105 transform`}
                   style={{
-                    height: `${(day.calories / maxCalories) * 100}%`,
-                    minHeight: day.calories > 0 ? '8px' : '0px',
+                    height: `${Math.max((day.activityScore / maxActivityScore) * 100, day.activityScore > 0 ? 20 : 0)}%`,
+                    minHeight: day.activityScore > 0 ? '24px' : '0px',
                     animationDelay: `${index * 0.1}s`,
                   }}
                   data-testid={`chart-bar-${day.day.toLowerCase()}`}
                 />
               </div>
-              <div className={`text-xs font-medium ${day.day === 'Sun' && new Date().getDay() === 0 ? 'text-coral-500 dark:text-coral-400 font-bold' : 'text-slate-600 dark:text-slate-400'}`}>
+            </div>
+          ))}
+        </div>
+        
+        {/* Labels positioned absolutely at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 flex justify-between px-4">
+          {weeklyData.map((day, index) => (
+            <div key={`label-${day.day}`} className="flex flex-col items-center space-y-1 flex-1">
+              <div className={`text-sm font-semibold ${day.day === 'Fri' && new Date().getDay() === 5 ? 'text-coral-500 dark:text-coral-400 font-bold' : 'text-slate-600 dark:text-slate-400'}`}>
                 {day.day}
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-500">
-                {day.calories}
+              <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                {day.calories} cal
               </div>
+              {day.duration > 0 && (
+                <div className="text-xs text-slate-500 dark:text-slate-500">
+                  {day.duration}min • {day.workouts} workout{day.workouts > 1 ? 's' : ''}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack - Enhanced Fitness Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#FF6B6B',
+                    secondary: '#4ECDC4',
+                    accent: '#45B7D1',
+                    success: '#96CEB4',
+                    coral: {
+                        50: '#FFF5F5',
+                        100: '#FED7D7',
+                        500: '#FF6B6B',
+                        600: '#E55555',
+                        700: '#CC4444'
+                    },
+                    teal: {
+                        50: '#F0FDFA',
+                        100: '#CCFBF1',
+                        500: '#4ECDC4',
+                        600: '#3BBEB5',
+                        700: '#2A9D8F'
+                    },
+                    slate: {
+                        900: '#0F172A',
+                        800: '#1E293B',
+                        700: '#334155',
+                        600: '#475569',
+                        500: '#64748B',
+                        400: '#94A3B8',
+                        300: '#CBD5E1',
+                        200: '#E2E8F0',
+                        100: '#F1F5F9',
+                        50: '#F8FAFC'
+                    }
+                },
+                fontFamily: {
+                    sans: ['Inter', 'system-ui', 'sans-serif']
+                },
+                animation: {
+                    'fade-in': 'fadeIn 0.5s ease-in-out',
+                    'slide-up': 'slideUp 0.3s ease-out',
+                    'scale-in': 'scaleIn 0.2s ease-out',
+                    'progress': 'progress 1s ease-out forwards'
+                },
+                keyframes: {
+                    fadeIn: {
+                        '0%': { opacity: '0' },
+                        '100%': { opacity: '1' }
+                    },
+                    slideUp: {
+                        '0%': { transform: 'translateY(10px)', opacity: '0' },
+                        '100%': { transform: 'translateY(0)', opacity: '1' }
+                    },
+                    scaleIn: {
+                        '0%': { transform: 'scale(0.95)', opacity: '0' },
+                        '100%': { transform: 'scale(1)', opacity: '1' }
+                    },
+                    progress: {
+                        '0%': { transform: 'scaleX(0)' },
+                        '100%': { transform: 'scaleX(1)' }
+                    }
+                }
+            }
+        },
+        darkMode: 'class'
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50 transition-colors duration-300">
+    
+    <!-- @COMPONENT: ThemeProvider [manages dark/light theme state] -->
+    <!-- @COMPONENT: Header [navigation and theme toggle] -->
+    <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo and Title -->
+                <div class="flex items-center space-x-3 animate-fade-in">
+                    <div class="w-10 h-10 bg-gradient-to-br from-coral-500 to-coral-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-dumbbell text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-coral-500 to-teal-500 bg-clip-text text-transparent">FitTrack</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Your Fitness Journey</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-1">
+                    <a href="#dashboard" class="px-4 py-2 rounded-lg bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400 font-medium transition-all duration-200 hover:bg-coral-100 dark:hover:bg-coral-900/30">
+                        <i class="fas fa-chart-line mr-2"></i>Dashboard
+                    </a>
+                    <a href="#workouts" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i class="fas fa-running mr-2"></i>Workouts
+                    </a>
+                    <a href="#progress" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 font-medium transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i class="fas fa-trophy mr-2"></i>Progress
+                    </a>
+                </nav>
+
+                <!-- Theme Toggle -->
+                <div class="flex items-center space-x-3">
+                    <button 
+                        data-event="click:toggleTheme" 
+                        data-implementation="Toggle between light and dark theme"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 transform hover:scale-105 group"
+                    >
+                        <i class="fas fa-moon dark:hidden text-lg group-hover:rotate-12 transition-transform"></i>
+                        <i class="fas fa-sun hidden dark:inline text-lg group-hover:rotate-12 transition-transform text-yellow-400"></i>
+                    </button>
+                    <div class="md:hidden">
+                        <button class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: Dashboard [main dashboard layout] -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+        
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
+                        Welcome back, <span data-bind="user.name" class="text-coral-500">Alex</span>! 👋
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400">Let's crush your fitness goals today</p>
+                </div>
+                <div class="flex items-center space-x-2 bg-gradient-to-r from-coral-500/10 to-teal-500/10 dark:from-coral-500/20 dark:to-teal-500/20 px-4 py-2 rounded-xl border border-coral-200 dark:border-coral-800">
+                    <i class="fas fa-fire text-coral-500"></i>
+                    <span class="text-sm font-medium">🔥 <span data-bind="user.streak">7</span> day streak!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <!-- @STATE: todayStats:object = {workouts: 2, calories: 450, duration: 65} -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- @MAP: quickStats.map(stat => ( -->
+            <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-coral-500 to-coral-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <i class="fas fa-running text-white text-lg"></i>
+                    </div>
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">Today</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1" data-bind="stats.workouts">2</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Workouts</p>
+                <div class="mt-3 flex items-center text-xs">
+                    <i class="fas fa-arrow-up text-success mr-1"></i>
+                    <span class="text-success font-medium">+15%</span>
+                    <span class="text-slate-500 dark:text-slate-400 ml-1">vs yesterday</span>
+                </div>
+            </div>
+
+            <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style="animation-delay: 0.1s">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <i class="fas fa-fire text-white text-lg"></i>
+                    </div>
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">Today</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1" data-bind="stats.calories">450</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Calories Burned</p>
+                <div class="mt-3 flex items-center text-xs">
+                    <i class="fas fa-arrow-up text-success mr-1"></i>
+                    <span class="text-success font-medium">+8%</span>
+                    <span class="text-slate-500 dark:text-slate-400 ml-1">vs yesterday</span>
+                </div>
+            </div>
+
+            <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style="animation-delay: 0.2s">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-accent to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <i class="fas fa-clock text-white text-lg"></i>
+                    </div>
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">Today</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1" data-bind="stats.duration">65</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Minutes Active</p>
+                <div class="mt-3 flex items-center text-xs">
+                    <i class="fas fa-arrow-up text-success mr-1"></i>
+                    <span class="text-success font-medium">+22%</span>
+                    <span class="text-slate-500 dark:text-slate-400 ml-1">vs yesterday</span>
+                </div>
+            </div>
+
+            <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up group" style="animation-delay: 0.3s">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-success to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                        <i class="fas fa-trophy text-white text-lg"></i>
+                    </div>
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">This Week</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-1" data-bind="stats.goals">3/4</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Goals Achieved</p>
+                <div class="mt-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-success to-green-600 h-2 rounded-full animate-progress" style="width: 75%; transform-origin: left;"></div>
+                </div>
+            </div>
+            <!-- @END_MAP )) -->
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- @COMPONENT: WeeklyProgress [progress visualization chart] -->
+                <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-slate-50 mb-1">Weekly Progress</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Your activity over the last 7 days</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                                <i class="fas fa-refresh text-sm"></i>
+                            </button>
+                            <select class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-lg px-3 py-1 text-sm border-0 focus:ring-2 focus:ring-coral-500">
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option>Last 3 months</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Chart Area -->
+                    <!-- @FUNCTIONALITY: This should implement a real chart using Chart.js or similar -->
+                    <div class="h-64 relative">
+                        <div class="absolute inset-0 flex items-end justify-between px-2">
+                            <!-- @MAP: weeklyData.map((day, index) => ( -->
+                            <div class="flex flex-col items-center space-y-2 flex-1">
+                                <div class="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+                                    <div class="bg-gradient-to-t from-coral-500 to-coral-400 rounded-t-lg transition-all duration-1000 ease-out hover:from-coral-400 hover:to-coral-300" 
+                                         style="height: 45%; animation: progress 1.5s ease-out forwards; animation-delay: 0.1s"></div>
+                                </div>
+                                <div class="text-xs font-medium text-slate-600 dark:text-slate-400">Mon</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">320</div>
+                            </div>
+                            <div class="flex flex-col items-center space-y-2 flex-1">
+                                <div class="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+                                    <div class="bg-gradient-to-t from-teal-500 to-teal-400 rounded-t-lg transition-all duration-1000 ease-out hover:from-teal-400 hover:to-teal-300" 
+                                         style="height: 72%; animation: progress 1.5s ease-out forwards; animation-delay: 0.2s"></div>
+                                </div>
+                                <div class="text-xs font-medium text-slate-600 dark:text-slate-400">Tue</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">495</div>
+                            </div>
+                            <div class="flex flex-col items-center space-y-2 flex-1">
+                                <div class="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+                                    <div class="bg-gradient-to-t from-accent to-blue-400 rounded-t-lg transition-all duration-1000 ease-out hover:from-blue-400 hover:to-blue-300" 
+                                         style="height: 65%; animation: progress 1.5s ease-out forwards; animation-delay: 0.3s"></div>
+                                </div>
+                                <div class="text-xs font-medium text-slate-600 dark:text-slate-400">Wed</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">430</div>
+                            </div>
+                            <div class="flex flex-col items-center space-y-2 flex-1">
+                                <div class="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+                                    <div class="bg-gradient-to-t from-success to-green-400 rounded-t-lg transition-all duration-1000 ease-out hover:from-green-400 hover:to-green-300" 
+                                         style="height: 88%; animation: progress 1.5s ease-out forwards; animation-delay: 0.4s"></div>
+                                </div>
+                                <div class="text-xs font-medium text-slate-600 dark:text-slate-400">Thu</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">580</div>
+                            </div>
+                            <div class="flex flex-col items-center space-y-2 flex-1">
+                                <div class="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+                                    <div class="bg-gradient-to-t from-coral-500 to-coral-400 rounded-t-lg transition-all duration-1000 ease-out hover:from-coral-400 hover:to-coral-300" 
+                                         style="height: 52%; animation: progress 1.5s ease-out forwards; animation-delay: 0.5s"></div>
+                                </div>
+                                <div class="text-xs font-medium text-slate-600 dark:text-slate-400">Fri</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">350</div>
+                            </div>
+                            <div class="flex flex-col items-center space-y-2 flex-1">
+                                <div class="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+                                    <div class="bg-gradient-to-t from-teal-500 to-teal-400 rounded-t-lg transition-all duration-1000 ease-out hover:from-teal-400 hover:to-teal-300" 
+                                         style="height: 95%; animation: progress 1.5s ease-out forwards; animation-delay: 0.6s"></div>
+                                </div>
+                                <div class="text-xs font-medium text-slate-600 dark:text-slate-400">Sat</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">620</div>
+                            </div>
+                            <div class="flex flex-col items-center space-y-2 flex-1">
+                                <div class="w-full max-w-8 bg-slate-200 dark:bg-slate-700 rounded-t-lg relative overflow-hidden">
+                                    <div class="bg-gradient-to-t from-accent to-blue-400 rounded-t-lg transition-all duration-1000 ease-out hover:from-blue-400 hover:to-blue-300" 
+                                         style="height: 78%; animation: progress 1.5s ease-out forwards; animation-delay: 0.7s"></div>
+                                </div>
+                                <div class="text-xs font-medium text-coral-500 dark:text-coral-400 font-bold">Today</div>
+                                <div class="text-xs text-coral-500 font-medium">450</div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="flex justify-center space-x-6 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-gradient-to-r from-coral-500 to-coral-400 rounded-full"></div>
+                            <span class="text-xs text-slate-600 dark:text-slate-400">Strength</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-gradient-to-r from-teal-500 to-teal-400 rounded-full"></div>
+                            <span class="text-xs text-slate-600 dark:text-slate-400">Cardio</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-gradient-to-r from-accent to-blue-400 rounded-full"></div>
+                            <span class="text-xs text-slate-600 dark:text-slate-400">Yoga</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-gradient-to-r from-success to-green-400 rounded-full"></div>
+                            <span class="text-xs text-slate-600 dark:text-slate-400">HIIT</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: WeeklyProgress -->
+
+                <!-- @COMPONENT: RecentActivities [workout history display] -->
+                <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up" style="animation-delay: 0.2s">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-slate-50 mb-1">Recent Activities</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Your latest workouts</p>
+                        </div>
+                        <button class="px-4 py-2 bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400 rounded-lg hover:bg-coral-100 dark:hover:bg-coral-900/30 transition-colors text-sm font-medium">
+                            View All
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- @MAP: recentWorkouts.map(workout => ( -->
+                        <div class="flex items-center space-x-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 group cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-600" data-mock="true">
+                            <div class="w-12 h-12 bg-gradient-to-br from-coral-500 to-coral-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                                <i class="fas fa-running text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-slate-900 dark:text-slate-50 truncate" data-bind="workout.name">Morning Run</h4>
+                                    <span class="text-sm text-slate-500 dark:text-slate-400" data-bind="workout.time">2 hours ago</span>
+                                </div>
+                                <div class="flex items-center space-x-4 mt-1">
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">
+                                        <i class="fas fa-clock mr-1"></i><span data-bind="workout.duration">45 min</span>
+                                    </span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">
+                                        <i class="fas fa-fire mr-1"></i><span data-bind="workout.calories">320 cal</span>
+                                    </span>
+                                    <span class="px-2 py-1 bg-coral-100 dark:bg-coral-900/30 text-coral-600 dark:text-coral-400 text-xs rounded-full" data-bind="workout.intensity">High</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"></i>
+                        </div>
+
+                        <div class="flex items-center space-x-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 group cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-600" data-mock="true">
+                            <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                                <i class="fas fa-dumbbell text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-slate-900 dark:text-slate-50 truncate">Upper Body Strength</h4>
+                                    <span class="text-sm text-slate-500 dark:text-slate-400">Yesterday</span>
+                                </div>
+                                <div class="flex items-center space-x-4 mt-1">
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">
+                                        <i class="fas fa-clock mr-1"></i>60 min
+                                    </span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">
+                                        <i class="fas fa-fire mr-1"></i>495 cal
+                                    </span>
+                                    <span class="px-2 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 text-xs rounded-full">Medium</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"></i>
+                        </div>
+
+                        <div class="flex items-center space-x-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 group cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-600" data-mock="true">
+                            <div class="w-12 h-12 bg-gradient-to-br from-accent to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                                <i class="fas fa-heart text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-slate-900 dark:text-slate-50 truncate">Yoga Flow</h4>
+                                    <span class="text-sm text-slate-500 dark:text-slate-400">2 days ago</span>
+                                </div>
+                                <div class="flex items-center space-x-4 mt-1">
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">
+                                        <i class="fas fa-clock mr-1"></i>30 min
+                                    </span>
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">
+                                        <i class="fas fa-fire mr-1"></i>180 cal
+                                    </span>
+                                    <span class="px-2 py-1 bg-accent/20 text-accent text-xs rounded-full">Low</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"></i>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: RecentActivities -->
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-8">
+                
+                <!-- @COMPONENT: AddWorkoutForm [enhanced workout logging form] -->
+                <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up" style="animation-delay: 0.1s">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-coral-500 to-coral-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-plus text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Add Workout</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Log your latest session</p>
+                        </div>
+                    </div>
+                    
+                    <!-- @FUNCTIONALITY: Form should integrate with React Hook Form and Zod validation -->
+                    <form class="space-y-4" data-implementation="Integrate with React Hook Form and Zod validation">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Exercise Type</label>
+                            <select class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-50">
+                                <option value="">Select exercise</option>
+                                <option value="running">🏃‍♂️ Running</option>
+                                <option value="strength">💪 Strength Training</option>
+                                <option value="yoga">🧘‍♀️ Yoga</option>
+                                <option value="cycling">🚴‍♂️ Cycling</option>
+                                <option value="swimming">🏊‍♂️ Swimming</option>
+                                <option value="hiit">⚡ HIIT</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Duration</label>
+                                <div class="relative">
+                                    <input type="number" placeholder="45" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-50 pr-12">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-slate-500 dark:text-slate-400">min</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Calories</label>
+                                <div class="relative">
+                                    <input type="number" placeholder="320" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-50 pr-12">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-slate-500 dark:text-slate-400">cal</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Intensity</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-accent/20 hover:text-accent transition-all duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent">
+                                    Low
+                                </button>
+                                <button type="button" class="px-3 py-2 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/30 transition-all duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                    Medium
+                                </button>
+                                <button type="button" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-coral-50 hover:text-coral-600 transition-all duration-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-coral-500">
+                                    High
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Notes (Optional)</label>
+                            <textarea rows="3" placeholder="How did it feel? Any observations..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent transition-all duration-200 text-slate-900 dark:text-slate-50 resize-none"></textarea>
+                        </div>
+                        
+                        <button 
+                            type="submit" 
+                            data-event="click:handleSubmit" 
+                            data-implementation="Should validate form before submission and add workout to localStorage"
+                            class="w-full bg-gradient-to-r from-coral-500 to-coral-600 hover:from-coral-600 hover:to-coral-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+                        >
+                            <i class="fas fa-plus mr-2"></i>Log Workout
+                        </button>
+                    </form>
+                </div>
+                <!-- @END_COMPONENT: AddWorkoutForm -->
+
+                <!-- @COMPONENT: FitnessGoals [goals tracking component] -->
+                <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up" style="animation-delay: 0.2s">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-success to-green-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-target text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Today's Goals</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Track your daily targets</p>
+                        </div>
+                    </div>
+                    
+                    <!-- @STATE: dailyGoals:object = {calories: {current: 450, target: 600}, workouts: {current: 2, target: 3}, activeTime: {current: 65, target: 90}} -->
+                    <div class="space-y-6">
+                        <!-- @MAP: dailyGoals.map(goal => ( -->
+                        <div class="space-y-3" data-mock="true">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-coral-100 dark:bg-coral-900/30 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-fire text-coral-500 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-slate-900 dark:text-slate-50">Calories Burned</p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400"><span data-bind="goal.current">450</span> / <span data-bind="goal.target">600</span> cal</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-coral-500">75%</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-coral-500 to-coral-600 h-2 rounded-full animate-progress" style="width: 75%; transform-origin: left;"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3" data-mock="true">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-dumbbell text-teal-500 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-slate-900 dark:text-slate-50">Workouts</p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400">2 / 3 sessions</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-teal-500">67%</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full animate-progress" style="width: 67%; transform-origin: left; animation-delay: 0.1s"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3" data-mock="true">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-accent/20 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-clock text-accent text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-slate-900 dark:text-slate-50">Active Time</p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400">65 / 90 min</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-accent">72%</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-accent to-blue-600 h-2 rounded-full animate-progress" style="width: 72%; transform-origin: left; animation-delay: 0.2s"></div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Overall Progress</p>
+                            <p class="text-sm font-medium text-success">71% Complete</p>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
+                            <div class="bg-gradient-to-r from-success to-green-600 h-2 rounded-full animate-progress" style="width: 71%; transform-origin: left; animation-delay: 0.3s"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: FitnessGoals -->
+
+                <!-- @COMPONENT: ExerciseLibrary [quick exercise suggestions] -->
+                <div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl animate-slide-up" style="animation-delay: 0.3s">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-accent to-blue-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-book text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Quick Start</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Popular exercises</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <!-- @MAP: popularExercises.map(exercise => ( -->
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 cursor-pointer group" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-lg">🏃‍♂️</div>
+                                <div>
+                                    <p class="font-medium text-slate-900 dark:text-slate-50 text-sm" data-bind="exercise.name">Running</p>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400" data-bind="exercise.calories">~8 cal/min</p>
+                                </div>
+                            </div>
+                            <button class="p-2 text-slate-400 hover:text-coral-500 transition-colors group-hover:scale-110 transform duration-200">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 cursor-pointer group" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-lg">💪</div>
+                                <div>
+                                    <p class="font-medium text-slate-900 dark:text-slate-50 text-sm">Push-ups</p>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400">~5 cal/min</p>
+                                </div>
+                            </div>
+                            <button class="p-2 text-slate-400 hover:text-coral-500 transition-colors group-hover:scale-110 transform duration-200">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 cursor-pointer group" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-lg">🧘‍♀️</div>
+                                <div>
+                                    <p class="font-medium text-slate-900 dark:text-slate-50 text-sm">Yoga</p>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400">~3 cal/min</p>
+                                </div>
+                            </div>
+                            <button class="p-2 text-slate-400 hover:text-coral-500 transition-colors group-hover:scale-110 transform duration-200">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 cursor-pointer group" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-lg">⚡</div>
+                                <div>
+                                    <p class="font-medium text-slate-900 dark:text-slate-50 text-sm">HIIT</p>
+                                    <p class="text-xs text-slate-600 dark:text-slate-400">~12 cal/min</p>
+                                </div>
+                            </div>
+                            <button class="p-2 text-slate-400 hover:text-coral-500 transition-colors group-hover:scale-110 transform duration-200">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                    
+                    <button class="w-full mt-4 py-2 text-accent hover:text-accent/80 font-medium text-sm transition-colors">
+                        Browse All Exercises <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                <!-- @END_COMPONENT: ExerciseLibrary -->
+            </div>
+        </div>
+    </main>
+    <!-- @END_COMPONENT: Dashboard -->
+
+    <!-- @COMPONENT: FloatingActionButton [quick add workout] -->
+    <div class="fixed bottom-6 right-6 md:hidden">
+        <button class="w-14 h-14 bg-gradient-to-r from-coral-500 to-coral-600 hover:from-coral-600 hover:to-coral-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-coral-500/30">
+            <i class="fas fa-plus text-lg"></i>
+        </button>
+    </div>
+    <!-- @END_COMPONENT: FloatingActionButton -->
+
+    <!-- @COMPONENT: Toast [notification system] -->
+    <!-- @STATE: toasts:array = [] -->
+    <div class="fixed top-4 right-4 z-50 space-y-2" data-implementation="Should integrate with useToast hook for notifications">
+        <!-- Toast notifications will be rendered here -->
+    </div>
+    <!-- @END_COMPONENT: Toast -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            'use strict';
+            
+            // Theme toggle functionality
+            const themeToggle = document.querySelector('[data-event="click:toggleTheme"]');
+            const html = document.documentElement;
+            
+            // Initialize theme from localStorage or default to light
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            html.classList.toggle('dark', currentTheme === 'dark');
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const isDark = html.classList.contains('dark');
+                    html.classList.toggle('dark', !isDark);
+                    localStorage.setItem('theme', !isDark ? 'dark' : 'light');
+                    
+                    // Add a subtle animation effect
+                    this.style.transform = 'rotate(180deg)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            }
+            
+            // Intensity button selection
+            const intensityButtons = document.querySelectorAll('button[type="button"]');
+            intensityButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active state from all intensity buttons
+                    intensityButtons.forEach(btn => {
+                        if (btn.textContent.includes('Low') || btn.textContent.includes('Medium') || btn.textContent.includes('High')) {
+                            btn.classList.remove('bg-coral-50', 'text-coral-600', 'bg-teal-50', 'text-teal-600', 'dark:bg-coral-900/20', 'dark:text-coral-400');
+                            btn.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+                        }
+                    });
+                    
+                    // Add active state to clicked button
+                    if (this.textContent.includes('Low')) {
+                        this.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+                        this.classList.add('bg-accent/20', 'text-accent');
+                    } else if (this.textContent.includes('Medium')) {
+                        this.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+                        this.classList.add('bg-teal-50', 'text-teal-600', 'dark:bg-teal-900/20', 'dark:text-teal-400');
+                    } else if (this.textContent.includes('High')) {
+                        this.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-700', 'dark:text-slate-400');
+                        this.classList.add('bg-coral-50', 'text-coral-600', 'dark:bg-coral-900/20', 'dark:text-coral-400');
+                    }
+                });
+            });
+            
+            // Form submission handling
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Simple form validation demonstration
+                    const exerciseType = this.querySelector('select').value;
+                    if (!exerciseType) {
+                        alert('Please select an exercise type');
+                        return;
+                    }
+                    
+                    // Simulate successful submission
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    const originalText = submitButton.innerHTML;
+                    
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
+                    submitButton.disabled = true;
+                    
+                    setTimeout(() => {
+                        submitButton.innerHTML = '<i class="fas fa-check mr-2"></i>Added!';
+                        setTimeout(() => {
+                            submitButton.innerHTML = originalText;
+                            submitButton.disabled = false;
+                            this.reset();
+                        }, 1000);
+                    }, 1500);
+                });
+            }
+            
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.group');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+        })();
+    </script>
+</body>
+</html>

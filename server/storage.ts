@@ -97,11 +97,23 @@ export class MemStorage implements IStorage {
   }
 
   async getWorkoutsByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Workout[]> {
-    return Array.from(this.workouts.values()).filter(
-      workout => workout.userId === userId && 
-                 new Date(workout.date) >= startDate && 
-                 new Date(workout.date) <= endDate
-    );
+    // Fix the endDate to be end of day if it's not already
+    const fixedEndDate = new Date(endDate);
+    if (fixedEndDate.getHours() !== 23) {
+      fixedEndDate.setHours(23, 59, 59, 999);
+    }
+    
+    console.log('Date range filter:', startDate.toISOString(), 'to', fixedEndDate.toISOString());
+    
+    return Array.from(this.workouts.values()).filter(workout => {
+      if (workout.userId !== userId) return false;
+      
+      const workoutDate = new Date(workout.date);
+      const inRange = workoutDate >= startDate && workoutDate <= fixedEndDate;
+      
+      console.log(`Workout ${workout.exerciseType} on ${workoutDate.toISOString()}: ${inRange ? 'INCLUDED' : 'EXCLUDED'}`);
+      return inRange;
+    });
   }
 
   async getExercises(): Promise<Exercise[]> {
