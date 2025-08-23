@@ -1,5 +1,19 @@
-import { type User, type InsertUser, type Workout, type InsertWorkout, type Exercise, type InsertExercise, type Goal, type InsertGoal } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { 
+  users, 
+  workouts, 
+  exercises, 
+  goals,
+  type User, 
+  type InsertUser, 
+  type Workout, 
+  type InsertWorkout, 
+  type Exercise, 
+  type InsertExercise, 
+  type Goal, 
+  type InsertGoal 
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -11,149 +25,151 @@ export interface IStorage {
   updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<Workout | undefined>;
   getWorkoutsByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Workout[]>;
   
-  getExercises(): Promise<Exercise[]>;
-  createExercise(exercise: InsertExercise): Promise<Exercise>;
+  getExercises(userId: string): Promise<Exercise[]>;
+  createExercise(userId: string, exercise: InsertExercise): Promise<Exercise>;
+  seedUserExercises(userId: string): Promise<void>;
   
   getGoals(userId: string): Promise<Goal[]>;
   createGoal(userId: string, goal: InsertGoal): Promise<Goal>;
   updateGoal(goalId: string, current: number): Promise<Goal | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private workouts: Map<string, Workout>;
-  private exercises: Map<string, Exercise>;
-  private goals: Map<string, Goal>;
-
-  constructor() {
-    this.users = new Map();
-    this.workouts = new Map();
-    this.exercises = new Map();
-    this.goals = new Map();
-    
-    // Seed with popular exercises
-    this.seedExercises();
-  }
-
-  private seedExercises() {
-    const exercises: Exercise[] = [
-      { id: randomUUID(), name: "Running", category: "cardio", caloriesPerMinute: 8, emoji: "🏃‍♂️" },
-      { id: randomUUID(), name: "Push-ups", category: "strength", caloriesPerMinute: 5, emoji: "💪" },
-      { id: randomUUID(), name: "Yoga", category: "flexibility", caloriesPerMinute: 3, emoji: "🧘‍♀️" },
-      { id: randomUUID(), name: "HIIT", category: "cardio", caloriesPerMinute: 12, emoji: "⚡" },
-      { id: randomUUID(), name: "Cycling", category: "cardio", caloriesPerMinute: 6, emoji: "🚴‍♂️" },
-      { id: randomUUID(), name: "Swimming", category: "cardio", caloriesPerMinute: 10, emoji: "🏊‍♂️" },
-      { id: randomUUID(), name: "Weight Training", category: "strength", caloriesPerMinute: 7, emoji: "🏋️‍♂️" },
-      { id: randomUUID(), name: "Pilates", category: "flexibility", caloriesPerMinute: 4, emoji: "🤸‍♀️" },
-    ];
-    
-    exercises.forEach(exercise => this.exercises.set(exercise.id, exercise));
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    
+    // Seed initial exercises for new user
+    await this.seedUserExercises(user.id);
+    
     return user;
   }
 
   async getWorkouts(userId: string): Promise<Workout[]> {
-    return Array.from(this.workouts.values()).filter(
-      workout => workout.userId === userId
-    ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return await db
+      .select()
+      .from(workouts)
+      .where(eq(workouts.userId, userId))
+      .orderBy(workouts.date);
   }
 
   async createWorkout(userId: string, insertWorkout: InsertWorkout): Promise<Workout> {
-    const id = randomUUID();
-    const workout: Workout = { 
-      ...insertWorkout,
-      notes: insertWorkout.notes || null,
-      id, 
-      userId, 
-      date: insertWorkout.date ? new Date(insertWorkout.date) : new Date() 
-    };
-    this.workouts.set(id, workout);
+    const [workout] = await db
+      .insert(workouts)
+      .values({
+        ...insertWorkout,
+        userId,
+        date: insertWorkout.date ? new Date(insertWorkout.date) : new Date()
+      })
+      .returning();
     return workout;
   }
 
   async updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<Workout | undefined> {
-    const workout = this.workouts.get(workoutId);
-    if (workout) {
-      const updatedWorkout = { ...workout, ...updates };
-      this.workouts.set(workoutId, updatedWorkout);
-      return updatedWorkout;
-    }
-    return undefined;
+    const [workout] = await db
+      .update(workouts)
+      .set(updates)
+      .where(eq(workouts.id, workoutId))
+      .returning();
+    return workout;
   }
 
   async getWorkoutsByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Workout[]> {
-    // Fix the endDate to be end of day if it's not already
     const fixedEndDate = new Date(endDate);
     if (fixedEndDate.getHours() !== 23) {
       fixedEndDate.setHours(23, 59, 59, 999);
     }
     
-    console.log('Date range filter:', startDate.toISOString(), 'to', fixedEndDate.toISOString());
-    
-    return Array.from(this.workouts.values()).filter(workout => {
-      if (workout.userId !== userId) return false;
-      
-      const workoutDate = new Date(workout.date);
-      const inRange = workoutDate >= startDate && workoutDate <= fixedEndDate;
-      
-      console.log(`Workout ${workout.exerciseType} on ${workoutDate.toISOString()}: ${inRange ? 'INCLUDED' : 'EXCLUDED'}`);
-      return inRange;
-    });
+    return await db
+      .select()
+      .from(workouts)
+      .where(
+        and(
+          eq(workouts.userId, userId),
+          gte(workouts.date, startDate),
+          lte(workouts.date, fixedEndDate)
+        )
+      );
   }
 
-  async getExercises(): Promise<Exercise[]> {
-    return Array.from(this.exercises.values());
+  async getExercises(userId: string): Promise<Exercise[]> {
+    return await db
+      .select()
+      .from(exercises)
+      .where(eq(exercises.userId, userId));
   }
 
-  async createExercise(insertExercise: InsertExercise): Promise<Exercise> {
-    const id = randomUUID();
-    const exercise: Exercise = { ...insertExercise, id };
-    this.exercises.set(id, exercise);
+  async createExercise(userId: string, insertExercise: InsertExercise): Promise<Exercise> {
+    const [exercise] = await db
+      .insert(exercises)
+      .values({
+        ...insertExercise,
+        userId
+      })
+      .returning();
     return exercise;
   }
 
-  async getGoals(userId: string): Promise<Goal[]> {
-    return Array.from(this.goals.values()).filter(
-      goal => goal.userId === userId
+  async seedUserExercises(userId: string): Promise<void> {
+    const defaultExercises = [
+      { name: "Running", category: "cardio", caloriesPerMinute: 8, emoji: "🏃‍♂️" },
+      { name: "Push-ups", category: "strength", caloriesPerMinute: 5, emoji: "💪" },
+      { name: "Yoga", category: "flexibility", caloriesPerMinute: 3, emoji: "🧘‍♀️" },
+      { name: "HIIT", category: "cardio", caloriesPerMinute: 12, emoji: "⚡" },
+      { name: "Cycling", category: "cardio", caloriesPerMinute: 6, emoji: "🚴‍♂️" },
+      { name: "Swimming", category: "cardio", caloriesPerMinute: 10, emoji: "🏊‍♂️" },
+      { name: "Weight Training", category: "strength", caloriesPerMinute: 7, emoji: "🏋️‍♂️" },
+      { name: "Pilates", category: "flexibility", caloriesPerMinute: 4, emoji: "🤸‍♀️" },
+    ];
+    
+    await db.insert(exercises).values(
+      defaultExercises.map(exercise => ({
+        ...exercise,
+        userId
+      }))
     );
   }
 
+  async getGoals(userId: string): Promise<Goal[]> {
+    return await db
+      .select()
+      .from(goals)
+      .where(eq(goals.userId, userId));
+  }
+
   async createGoal(userId: string, insertGoal: InsertGoal): Promise<Goal> {
-    const id = randomUUID();
-    const goal: Goal = { 
-      ...insertGoal, 
-      id, 
-      userId, 
-      current: 0,
-      date: new Date() 
-    };
-    this.goals.set(id, goal);
+    const [goal] = await db
+      .insert(goals)
+      .values({
+        ...insertGoal,
+        userId,
+        current: 0,
+        date: new Date()
+      })
+      .returning();
     return goal;
   }
 
   async updateGoal(goalId: string, current: number): Promise<Goal | undefined> {
-    const goal = this.goals.get(goalId);
-    if (goal) {
-      goal.current = current;
-      this.goals.set(goalId, goal);
-    }
+    const [goal] = await db
+      .update(goals)
+      .set({ current })
+      .where(eq(goals.id, goalId))
+      .returning();
     return goal;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

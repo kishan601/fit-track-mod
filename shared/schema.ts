@@ -22,6 +22,7 @@ export const workouts = pgTable("workouts", {
 
 export const exercises = pgTable("exercises", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
   name: text("name").notNull(),
   category: text("category").notNull(),
   caloriesPerMinute: integer("calories_per_minute").notNull(),
@@ -51,6 +52,7 @@ export const insertWorkoutSchema = createInsertSchema(workouts).omit({
 
 export const insertExerciseSchema = createInsertSchema(exercises).omit({
   id: true,
+  userId: true,
 });
 
 export const insertGoalSchema = createInsertSchema(goals).omit({
