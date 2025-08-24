@@ -9,7 +9,7 @@ import { FitnessGoals } from "@/components/fitness-goals";
 import { ExerciseLibrary } from "@/components/exercise-library";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Workout } from "@shared/schema";
+import type { Workout, Goal } from "@shared/schema";
 
 export default function Dashboard() {
   const [userName, setUserName] = useState("Alex");
@@ -17,6 +17,10 @@ export default function Dashboard() {
   
   const { data: workouts } = useQuery<Workout[]>({
     queryKey: ["/api/workouts"],
+  });
+
+  const { data: goals } = useQuery<Goal[]>({
+    queryKey: ["/api/goals"],
   });
 
   const getCurrentDateTime = () => {
@@ -50,8 +54,12 @@ export default function Dashboard() {
 
     const todayWorkouts = workouts.filter(workout => {
       const workoutDate = new Date(workout.date);
-      return workoutDate >= todayStart && workoutDate < todayEnd;
+      // Check if workout is today using date string comparison (timezone-safe)
+      const workoutDateString = workoutDate.toDateString();
+      const todayDateString = today.toDateString();
+      return workoutDateString === todayDateString;
     });
+
 
     return {
       workouts: todayWorkouts.length,
@@ -61,6 +69,27 @@ export default function Dashboard() {
   };
 
   const todayStats = getTodayStats();
+
+  // Calculate real goals achievement instead of hardcoded 3/4! 👑
+  // *SLAP* "Queen needs to work for people!" 😂
+  const getGoalsAchievement = () => {
+    if (!goals || !Array.isArray(goals) || goals.length === 0) return { achieved: 0, total: 0, percentage: 0 };
+
+    // Define realistic goal targets based on today's stats
+    const dailyGoals = [
+      { name: "Daily Calories", target: 300, current: todayStats.calories },
+      { name: "Daily Workouts", target: 1, current: todayStats.workouts },
+      { name: "Active Minutes", target: 30, current: todayStats.duration },
+    ];
+
+    const achievedGoals = dailyGoals.filter(goal => goal.current >= goal.target).length;
+    const totalGoals = dailyGoals.length;
+    const percentage = totalGoals > 0 ? (achievedGoals / totalGoals) * 100 : 0;
+
+    return { achieved: achievedGoals, total: totalGoals, percentage };
+  };
+
+  const goalsAchievement = getGoalsAchievement();
 
   return (
     <div className="min-h-screen bg-white dark:bg-background transition-colors duration-300">
@@ -176,12 +205,14 @@ export default function Dashboard() {
                 This Week
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-foreground mb-1">3/4</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-1">
+              {goalsAchievement.achieved}/{goalsAchievement.total}
+            </h3>
             <p className="text-sm text-muted-foreground">Goals Achieved</p>
             <div className="mt-3 w-full bg-muted rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-success to-green-600 h-2 rounded-full animate-progress"
-                style={{ width: "75%", transformOrigin: "left" }}
+                className="bg-gradient-to-r from-success to-green-600 h-2 rounded-full animate-progress transition-all duration-500"
+                style={{ width: `${goalsAchievement.percentage}%`, transformOrigin: "left" }}
               />
             </div>
           </div>

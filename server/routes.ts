@@ -45,18 +45,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/workouts/weekly", async (req, res) => {
     try {
       const userId = "demo-user";
-      const today = new Date();
+      const now = new Date();
       
-      // Set to start of Monday in local timezone
-      const startDate = new Date(today);
-      startDate.setDate(today.getDate() - today.getDay() + 1);
-      startDate.setHours(0, 0, 0, 0); // Start of Monday
+      // Get start of current week (Monday) - more robust timezone handling
+      const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1; // Sunday should be 6 days from Monday
       
-      // Set to end of current day (not just current time!)
-      const endDate = new Date(today);
-      endDate.setHours(23, 59, 59, 999); // End of today
+      const startDate = new Date(now);
+      startDate.setDate(now.getDate() - daysFromMonday);
+      startDate.setHours(0, 0, 0, 0);
+      
+      // Get end of current week (Sunday)
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+      
+      console.log(`Weekly range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
       
       const workouts = await storage.getWorkoutsByDateRange(userId, startDate, endDate);
+      console.log(`Found workouts: ${workouts.length}`);
       res.json(workouts);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch weekly workouts" });
@@ -66,22 +73,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Exercises endpoints
   app.get("/api/exercises", async (req, res) => {
     try {
-      console.log("API: Starting exercises fetch for demo-user");
-      const userId = "demo-user";
-      const exercises = await storage.getExercises(userId);
-      console.log("API: Exercises fetched:", exercises.length, "items");
+      const exercises = await storage.getExercises();
       res.json(exercises);
     } catch (error) {
-      console.log("API: Error fetching exercises:", error);
       res.status(500).json({ message: "Failed to fetch exercises" });
     }
   });
 
   app.post("/api/exercises", async (req, res) => {
     try {
-      const userId = "demo-user";
       const validatedData = insertExerciseSchema.parse(req.body);
-      const exercise = await storage.createExercise(userId, validatedData);
+      const exercise = await storage.createExercise(validatedData);
       res.json(exercise);
     } catch (error) {
       res.status(400).json({ message: "Invalid exercise data" });

@@ -54,7 +54,6 @@ export const insertExerciseSchema = createInsertSchema(exercises).omit({
   id: true,
   userId: true,
 });
-
 export const insertGoalSchema = createInsertSchema(goals).omit({
   id: true,
   userId: true,

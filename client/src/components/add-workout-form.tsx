@@ -5,9 +5,22 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -44,35 +57,43 @@ export function AddWorkoutForm() {
       duration: 0,
       calories: 0,
       intensity: "medium",
-      date: new Date().toISOString().split('T')[0], // Today's date
+      date: new Date().toISOString().split("T")[0], // Today's date
       notes: "",
     },
   });
 
   const addWorkoutMutation = useMutation({
     mutationFn: async (data: WorkoutFormData) => {
-      // Convert date string to Date object for backend
+      // FIXED: Proper date handling that preserves the user's selected date
+      const selectedDate = new Date(data.date);
+      selectedDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
+      
       const workoutData = {
         ...data,
-        date: new Date(data.date + 'T12:00:00.000Z') // Add time to avoid timezone issues
+        date: selectedDate, // This will now correctly use the user's selected date
       };
+      
+      console.log('Submitting workout with date:', selectedDate.toISOString());
+      console.log('Original form date:', data.date);
+      
       const response = await apiRequest("POST", "/api/workouts", workoutData);
       return response.json();
     },
     onSuccess: () => {
-  // Invalidate specific queries instead of clearing all cache
-  queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
-  queryClient.invalidateQueries({ queryKey: ["/api/workouts/weekly"] });
-  toast({
-    title: "Workout Added!",
-    description: "Your workout has been successfully logged.",
-  });
+      // Force invalidate specific queries with refetch
+      queryClient.invalidateQueries({ queryKey: ['/api/workouts'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['/api/workouts/weekly'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['/api/goals'], refetchType: 'all' });
+      toast({
+        title: "Workout Added!",
+        description: "Your workout has been successfully logged.",
+      });
       form.reset({
         exerciseType: "",
         duration: 0,
         calories: 0,
         intensity: "medium",
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split("T")[0],
         notes: "",
       });
       setSelectedIntensity("");
@@ -96,14 +117,21 @@ export function AddWorkoutForm() {
   };
 
   return (
-    <div className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up" data-testid="add-workout-form">
+    <div
+      className="bg-white dark:bg-card rounded-2xl p-6 border border-gray-200 dark:border-border shadow-lg animate-slide-up"
+      data-testid="add-workout-form"
+    >
       <div className="flex items-center space-x-3 mb-6">
         <div className="w-10 h-10 bg-gradient-to-br from-coral-500 to-coral-600 rounded-xl flex items-center justify-center">
           <Plus className="text-white" size={20} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">Add Workout</h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Log your latest session</p>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50">
+            Add Workout
+          </h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Log your latest session
+          </p>
         </div>
       </div>
 
@@ -117,7 +145,10 @@ export function AddWorkoutForm() {
                 <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Exercise Type
                 </FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger
                       className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-coral-500 focus:border-transparent transition-all duration-200"
@@ -231,7 +262,7 @@ export function AddWorkoutForm() {
                     onClick={() => handleIntensitySelect("low")}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       selectedIntensity === "low"
-                       ? "bg-yellow-50 text-yellow-600"  // ← This should be YELLOW instead
+                        ? "bg-yellow-50 text-yellow-600"
                         : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-accent/20 hover:text-accent"
                     }`}
                     data-testid="button-intensity-low"
@@ -295,19 +326,16 @@ export function AddWorkoutForm() {
           <Button
             type="submit"
             disabled={addWorkoutMutation.isPending}
-            className="w-full bg-gradient-to-r from-coral-500 to-coral-600 hover:from-coral-600 hover:to-coral-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+            className="w-full bg-gradient-to-r from-coral-500 to-coral-600 hover:from-coral-600 hover:to-coral-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
             data-testid="button-submit-workout"
           >
             {addWorkoutMutation.isPending ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Adding...
-              </>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Adding...</span>
+              </div>
             ) : (
-              <>
-                <Plus className="mr-2" size={16} />
-                Log Workout
-              </>
+              "Log Workout"
             )}
           </Button>
         </form>
