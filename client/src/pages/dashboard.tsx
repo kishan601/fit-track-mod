@@ -7,6 +7,7 @@ import { WeeklyProgress } from "@/components/weekly-progress";
 import { RecentActivities } from "@/components/recent-activities";
 import { FitnessGoals } from "@/components/fitness-goals";
 import { ExerciseLibrary } from "@/components/exercise-library";
+import { SaveProgressBanner } from "@/components/save-progress-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Workout, Goal } from "@shared/schema";
@@ -96,6 +97,9 @@ export default function Dashboard() {
       <Header />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+        {/* Save Progress Banner */}
+        <SaveProgressBanner />
+
         {/* Welcome Section */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">

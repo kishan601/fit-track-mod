@@ -48,5 +48,15 @@
     "date": "2025-08-21T06:30:00.000Z",
     "id": "d62e9e46-e05c-404f-9544-ebdc058e24a6",
     "userId": "demo-user"
+  },
+  {
+    "exerciseType": "yoga",
+    "duration": 900,
+    "calories": 900,
+    "intensity": "high",
+    "notes": null,
+    "date": "2025-08-24T06:30:00.000Z",
+    "id": "eebe6322-9b14-4090-ade3-eccadc24b752",
+    "userId": "demo-user"
   }
 ]
