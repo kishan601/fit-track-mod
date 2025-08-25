@@ -67,7 +67,7 @@ export function SaveProgressBanner() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Love tracking your fitness? 
+                  Love tracking your fitness?
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   Create an account to save your progress across all devices!
@@ -75,15 +75,15 @@ export function SaveProgressBanner() {
               </div>
             </div>
             <div className="flex space-x-2">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => setBannerDismissed(true)}
                 className="text-gray-500 hover:text-gray-700"
               >
                 Maybe later
               </Button>
-              <Button 
+              <Button
                 onClick={() => setShowRegistrationDialog(true)}
                 className="bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600"
                 data-testid="button-save-progress"
@@ -115,9 +115,9 @@ export function SaveProgressBanner() {
                   <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Choose a username" 
-                        {...field} 
+                      <Input
+                        placeholder="Choose a username"
+                        {...field}
                         data-testid="input-username"
                       />
                     </FormControl>
@@ -125,7 +125,7 @@ export function SaveProgressBanner() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -133,9 +133,9 @@ export function SaveProgressBanner() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="Create a secure password" 
+                      <Input
+                        type="password"
+                        placeholder="Create a secure password"
                         {...field}
                         data-testid="input-password"
                       />
@@ -146,17 +146,17 @@ export function SaveProgressBanner() {
               />
 
               <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setShowRegistrationDialog(false)}
                   disabled={isRegistering}
                   data-testid="button-cancel"
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isRegistering}
                   className="bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600"
                   data-testid="button-register"
