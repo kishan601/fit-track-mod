@@ -37,6 +37,19 @@ export async function ensureUserSession(
       req.session.userId = userId;
       req.session.isGuest = true;
       isGuest = true;
+      
+      // Create guest user in Railway PostgreSQL database
+      try {
+        await storage.createUser({
+          id: userId,
+          username: `guest_${userId.split('_')[1]?.substring(0, 8)}`, // Make username unique but short
+          password: 'guest_password' // Guest users don't need real passwords
+        });
+        console.log(`Created guest user in database: ${userId}`);
+      } catch (error) {
+        // Guest user might already exist, that's fine
+        console.log('Guest user already exists:', userId);
+      }
     }
 
     // For registered users, verify they still exist in the database
@@ -48,6 +61,18 @@ export async function ensureUserSession(
         req.session.userId = userId;
         req.session.isGuest = true;
         isGuest = true;
+        
+        // Create new guest user in Railway PostgreSQL database  
+        try {
+          await storage.createUser({
+            id: userId,
+            username: `guest_${userId.split('_')[1]?.substring(0, 8)}`,
+            password: 'guest_password' // Guest users don't need real passwords
+          });
+          console.log(`Created replacement guest user in database: ${userId}`);
+        } catch (error) {
+          console.log('Guest user creation failed:', userId);
+        }
       }
     }
 

@@ -7,8 +7,8 @@ import type { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
   constructor() {
-    // Seeding disabled - exercises already exist via db:push
-     this.seedExercises();
+    // Enable seeding for initial setup
+    this.seedExercises();
   }
 
   // User management
@@ -22,12 +22,13 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createUser(userData: InsertUser): Promise<User> {
+  async createUser(userData: InsertUser & { id?: string }): Promise<User> {
     const [user] = await db
       .insert(users)
       .values({
-        id: randomUUID(),
-        ...userData,
+        id: userData.id || randomUUID(),
+        username: userData.username,
+        password: userData.password,
       })
       .returning();
     return user;
