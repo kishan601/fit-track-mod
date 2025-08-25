@@ -109,14 +109,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/workouts", ensureUserSession, async (req, res) => {
+  app.post("/api/workouts", (req, res, next) => {
+    console.log("=== POST /api/workouts HIT ===");
+    console.log("Body:", req.body);
+    next();
+  }, ensureUserSession, async (req, res) => {
     try {
       const authReq = req as AuthenticatedRequest;
+      console.log("Received workout data:", req.body);
       const validatedData = insertWorkoutSchema.parse(req.body);
+      console.log("Validated workout data:", validatedData);
       const workout = await storage.createWorkout(authReq.userId, validatedData);
       res.json(workout);
     } catch (error: any) {
-      res.status(400).json({ message: "Invalid workout data" });
+      console.error("Workout validation error:", error);
+      res.status(400).json({ message: "Invalid workout data", error: error.message });
     }
   });
 
