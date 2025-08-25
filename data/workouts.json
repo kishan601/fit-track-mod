@@ -58,5 +58,55 @@
     "date": "2025-08-24T06:30:00.000Z",
     "id": "eebe6322-9b14-4090-ade3-eccadc24b752",
     "userId": "demo-user"
+  },
+  {
+    "exerciseType": "yoga",
+    "duration": 900,
+    "calories": 900,
+    "intensity": "low",
+    "notes": null,
+    "date": "2025-08-24T06:30:00.000Z",
+    "id": "874a6d64-dcf1-4542-ac9a-0783825e766d",
+    "userId": "demo-user"
+  },
+  {
+    "exerciseType": "hiit",
+    "duration": 900,
+    "calories": 900,
+    "intensity": "medium",
+    "notes": null,
+    "date": "2025-08-23T06:30:00.000Z",
+    "id": "c3bc29bf-38ab-4bc0-b1a3-4f29334e8ef2",
+    "userId": "demo-user"
+  },
+  {
+    "exerciseType": "yoga",
+    "duration": 900,
+    "calories": 900,
+    "intensity": "medium",
+    "notes": null,
+    "date": "2025-08-25T06:30:00.000Z",
+    "id": "b592b5b4-0eff-4da6-a447-e5d7177c26c5",
+    "userId": "demo-user"
+  },
+  {
+    "exerciseType": "swimming",
+    "duration": 900,
+    "calories": 900,
+    "intensity": "medium",
+    "notes": null,
+    "date": "2025-08-24T06:30:00.000Z",
+    "id": "a87632be-10a4-4af9-be5a-cbcf7324ee20",
+    "userId": "demo-user"
+  },
+  {
+    "exerciseType": "yoga",
+    "duration": 900,
+    "calories": 900,
+    "intensity": "low",
+    "notes": null,
+    "date": "2025-08-22T06:30:00.000Z",
+    "id": "48a30213-dddf-4281-9cfb-6d24716b3982",
+    "userId": "demo-user"
   }
 ]

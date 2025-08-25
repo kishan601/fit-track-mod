@@ -37,12 +37,14 @@ const workoutSchema = z.object({
 type WorkoutFormData = z.infer<typeof workoutSchema>;
 
 const exerciseOptions = [
-  { value: "running", label: "🏃‍♂️ Running", emoji: "🏃‍♂️" },
-  { value: "strength", label: "💪 Strength Training", emoji: "💪" },
-  { value: "yoga", label: "🧘‍♀️ Yoga", emoji: "🧘‍♀️" },
-  { value: "cycling", label: "🚴‍♂️ Cycling", emoji: "🚴‍♂️" },
-  { value: "swimming", label: "🏊‍♂️ Swimming", emoji: "🏊‍♂️" },
-  { value: "hiit", label: "⚡ HIIT", emoji: "⚡" },
+  { value: "Running", label: "🏃‍♂️ Running", emoji: "🏃‍♂️" },
+  { value: "Weight Training", label: "💪 Weight Training", emoji: "💪" },
+  { value: "Yoga", label: "🧘‍♀️ Yoga", emoji: "🧘‍♀️" },
+  { value: "Cycling", label: "🚴‍♂️ Cycling", emoji: "🚴‍♂️" },
+  { value: "Swimming", label: "🏊‍♂️ Swimming", emoji: "🏊‍♂️" },
+  { value: "HIIT", label: "⚡ HIIT", emoji: "⚡" },
+  { value: "Push-ups", label: "💪 Push-ups", emoji: "💪" },
+  { value: "Pilates", label: "🤸‍♀️ Pilates", emoji: "🤸‍♀️" },
 ];
 
 export function AddWorkoutForm() {
@@ -262,7 +264,7 @@ export function AddWorkoutForm() {
                     onClick={() => handleIntensitySelect("low")}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       selectedIntensity === "low"
-                        ? "bg-yellow-50 text-yellow-600"
+                        ? "bg-yellow-50 text-yellow-600" // ← This should be YELLOW instead
                         : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-accent/20 hover:text-accent"
                     }`}
                     data-testid="button-intensity-low"
@@ -326,16 +328,19 @@ export function AddWorkoutForm() {
           <Button
             type="submit"
             disabled={addWorkoutMutation.isPending}
-            className="w-full bg-gradient-to-r from-coral-500 to-coral-600 hover:from-coral-600 hover:to-coral-700 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            className="w-full bg-gradient-to-r from-coral-500 to-coral-600 hover:from-coral-600 hover:to-coral-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-coral-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
             data-testid="button-submit-workout"
           >
             {addWorkoutMutation.isPending ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Adding...</span>
-              </div>
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                Adding...
+              </>
             ) : (
-              "Log Workout"
+              <>
+                <Plus className="mr-2" size={16} />
+                Log Workout
+              </>
             )}
           </Button>
         </form>
