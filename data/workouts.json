@@ -1,0 +1,42 @@
+[
+  {
+    "id": "6c24c1d5-c036-4f20-a17c-9faff7755354",
+    "userId": "demo-user",
+    "exerciseType": "Running",
+    "duration": 30,
+    "calories": 240,
+    "intensity": "medium",
+    "notes": "Morning jog in the park",
+    "date": "2025-12-30T00:00:00.000Z"
+  },
+  {
+    "id": "5a74cd5d-4d4d-4db2-ab4d-9dee6d5f7e70",
+    "userId": "demo-user",
+    "exerciseType": "Yoga",
+    "duration": 45,
+    "calories": 135,
+    "intensity": "low",
+    "notes": "Relaxing evening session",
+    "date": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "ddae917a-36a2-41fb-9132-98b0258bdaee",
+    "userId": "demo-user",
+    "exerciseType": "HIIT",
+    "duration": 20,
+    "calories": 240,
+    "intensity": "high",
+    "notes": "Intense workout session",
+    "date": "2026-01-03T00:00:00.000Z"
+  },
+  {
+    "id": "d8c6d4d2-ba33-4bb7-9aaa-e7336959309c",
+    "userId": "demo-user",
+    "exerciseType": "Weight Training",
+    "duration": 40,
+    "calories": 280,
+    "intensity": "high",
+    "notes": "Strength training session",
+    "date": "2025-12-29T00:00:00.000Z"
+  }
+]

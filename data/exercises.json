@@ -1,0 +1,58 @@
+[
+  {
+    "id": "119441e3-48fb-432c-992f-7d8e9c933d14",
+    "name": "Running",
+    "category": "cardio",
+    "caloriesPerMinute": 8,
+    "emoji": "🏃‍♂️"
+  },
+  {
+    "id": "f61ac163-4c0d-45fd-91fe-d16146ee7630",
+    "name": "Push-ups",
+    "category": "strength",
+    "caloriesPerMinute": 5,
+    "emoji": "💪"
+  },
+  {
+    "id": "6b3eadb8-fbf1-4ed4-88f7-dfac80bf8f02",
+    "name": "Yoga",
+    "category": "flexibility",
+    "caloriesPerMinute": 3,
+    "emoji": "🧘‍♀️"
+  },
+  {
+    "id": "6019c920-3363-4055-8cbb-c83883054a94",
+    "name": "HIIT",
+    "category": "cardio",
+    "caloriesPerMinute": 12,
+    "emoji": "⚡"
+  },
+  {
+    "id": "927ca3a5-9b1d-4763-ab7e-764f61082c36",
+    "name": "Cycling",
+    "category": "cardio",
+    "caloriesPerMinute": 6,
+    "emoji": "🚴‍♂️"
+  },
+  {
+    "id": "202e5fb4-5bf3-4d15-a060-63f3b66944fa",
+    "name": "Swimming",
+    "category": "cardio",
+    "caloriesPerMinute": 10,
+    "emoji": "🏊‍♂️"
+  },
+  {
+    "id": "90df0482-b69c-41e1-86c6-027d7c60a6c3",
+    "name": "Weight Training",
+    "category": "strength",
+    "caloriesPerMinute": 7,
+    "emoji": "🏋️‍♂️"
+  },
+  {
+    "id": "ff23dacd-9a42-44b4-894e-8ef1e8ceba92",
+    "name": "Pilates",
+    "category": "flexibility",
+    "caloriesPerMinute": 4,
+    "emoji": "🤸‍♀️"
+  }
+]
