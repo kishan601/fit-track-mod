@@ -1,7 +1,7 @@
-import { type User, type InsertUser, type Workout, type InsertWorkout, type Exercise, type InsertExercise, type Goal, type InsertGoal } from "@shared/schema";
-import { randomUUID } from "crypto";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { join } from "path";
+import { type User, type InsertUser, type Workout, type InsertWorkout, type Exercise, type InsertExercise, type Goal, type InsertGoal, users, workouts, exercises, goals } from "@shared/schema";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
+import pg from "pg";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -21,299 +21,223 @@ export interface IStorage {
   updateGoal(goalId: string, current: number): Promise<Goal | undefined>;
 }
 
-// File storage paths
-const STORAGE_DIR = './data';
-const STORAGE_FILES = {
-  USERS: 'users.json',
-  WORKOUTS: 'workouts.json', 
-  EXERCISES: 'exercises.json',
-  GOALS: 'goals.json',
-  SEEDED: 'seeded.json'
-} as const;
+// Initialize database client
+const dbUrl = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL;
+if (!dbUrl) {
+  throw new Error("NEON_DATABASE_URL or DATABASE_URL must be set");
+}
 
-export class FileStorage implements IStorage {
+const client = new pg.Client({ connectionString: dbUrl });
+client.connect();
+
+const db = drizzle(client);
+
+export class DatabaseStorage implements IStorage {
+  private seeded = false;
+
   constructor() {
-    // Ensure storage directory exists
-    if (!existsSync(STORAGE_DIR)) {
-      mkdirSync(STORAGE_DIR, { recursive: true });
-    }
+    this.initializeSeeds();
+  }
+
+  private async initializeSeeds(): Promise<void> {
+    if (this.seeded) return;
     
-    // Only seed once on first load
-    if (!this.isSeeded()) {
-      this.seedExercises();
-      this.seedSampleData();
-      this.setSeeded();
-    }
-  }
-
-  private getFromStorage<T>(filename: string, defaultValue: T[] = []): T[] {
-    const filepath = join(STORAGE_DIR, filename);
     try {
-      if (existsSync(filepath)) {
-        const data = readFileSync(filepath, 'utf-8');
-        return JSON.parse(data);
+      const existingExercises = await db.select().from(exercises).limit(1);
+      if (existingExercises.length > 0) {
+        this.seeded = true;
+        return;
       }
-      return defaultValue as T[];
+      
+      await this.seedExercises();
+      await this.seedSampleData();
+      this.seeded = true;
     } catch (error) {
-      console.error(`Failed to read from ${filename}:`, error);
-      return defaultValue as T[];
+      console.error("Failed to initialize seeds:", error);
+      this.seeded = true;
     }
   }
 
-  private isSeeded(): boolean {
-    const filepath = join(STORAGE_DIR, STORAGE_FILES.SEEDED);
-    try {
-      if (existsSync(filepath)) {
-        const data = readFileSync(filepath, 'utf-8');
-        return JSON.parse(data);
-      }
-      return false;
-    } catch (error) {
-      console.error(`Failed to read seeded flag:`, error);
-      return false;
-    }
-  }
-
-  private setSeeded(): void {
-    const filepath = join(STORAGE_DIR, STORAGE_FILES.SEEDED);
-    try {
-      writeFileSync(filepath, JSON.stringify(true, null, 2), 'utf-8');
-    } catch (error) {
-      console.error(`Failed to save seeded flag:`, error);
-    }
-  }
-
-  private setInStorage<T>(filename: string, data: T[]): void {
-    const filepath = join(STORAGE_DIR, filename);
-    try {
-      writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf-8');
-    } catch (error) {
-      console.error(`Failed to save to ${filename}:`, error);
-    }
-  }
-
-  private findById<T extends { id: string }>(items: T[], id: string): T | undefined {
-    return items.find(item => item.id === id);
-  }
-
-  private filterByUserId<T extends { userId: string }>(items: T[], userId: string): T[] {
-    return items.filter(item => item.userId === userId);
-  }
-
-  private seedExercises() {
-    const exercises: Exercise[] = [
-      { id: randomUUID(), name: "Running", category: "cardio", caloriesPerMinute: 8, emoji: "🏃‍♂️" },
-      { id: randomUUID(), name: "Push-ups", category: "strength", caloriesPerMinute: 5, emoji: "💪" },
-      { id: randomUUID(), name: "Yoga", category: "flexibility", caloriesPerMinute: 3, emoji: "🧘‍♀️" },
-      { id: randomUUID(), name: "HIIT", category: "cardio", caloriesPerMinute: 12, emoji: "⚡" },
-      { id: randomUUID(), name: "Cycling", category: "cardio", caloriesPerMinute: 6, emoji: "🚴‍♂️" },
-      { id: randomUUID(), name: "Swimming", category: "cardio", caloriesPerMinute: 10, emoji: "🏊‍♂️" },
-      { id: randomUUID(), name: "Weight Training", category: "strength", caloriesPerMinute: 7, emoji: "🏋️‍♂️" },
-      { id: randomUUID(), name: "Pilates", category: "flexibility", caloriesPerMinute: 4, emoji: "🤸‍♀️" },
+  private async seedExercises(): Promise<void> {
+    const exercisesToSeed: (InsertExercise & { userId: string })[] = [
+      { name: "Running", category: "cardio", caloriesPerMinute: 8, emoji: "🏃‍♂️", userId: "demo-user" },
+      { name: "Push-ups", category: "strength", caloriesPerMinute: 5, emoji: "💪", userId: "demo-user" },
+      { name: "Yoga", category: "flexibility", caloriesPerMinute: 3, emoji: "🧘‍♀️", userId: "demo-user" },
+      { name: "HIIT", category: "cardio", caloriesPerMinute: 12, emoji: "⚡", userId: "demo-user" },
+      { name: "Cycling", category: "cardio", caloriesPerMinute: 6, emoji: "🚴‍♂️", userId: "demo-user" },
+      { name: "Swimming", category: "cardio", caloriesPerMinute: 10, emoji: "🏊‍♂️", userId: "demo-user" },
+      { name: "Weight Training", category: "strength", caloriesPerMinute: 7, emoji: "🏋️‍♂️", userId: "demo-user" },
+      { name: "Pilates", category: "flexibility", caloriesPerMinute: 4, emoji: "🤸‍♀️", userId: "demo-user" },
     ];
-    
-    this.setInStorage(STORAGE_FILES.EXERCISES, exercises);
+
+    for (const exercise of exercisesToSeed) {
+      try {
+        await db.insert(exercises).values(exercise);
+      } catch (error) {
+        // Exercise might already exist
+      }
+    }
   }
 
-  private seedSampleData() {
-    // Create demo user and sample workouts
+  private async seedSampleData(): Promise<void> {
     const demoUserId = "demo-user";
-    
     const now = new Date();
     
-    // Calculate current week to ensure all workouts fall within it
-    const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const currentDay = now.getDay();
     const daysFromMonday = currentDay === 0 ? 6 : currentDay - 1;
-    
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - daysFromMonday);
     startOfWeek.setHours(0, 0, 0, 0);
-    
-    // Sample workouts for demo purposes - distributed across current week
-    const sampleWorkouts: Workout[] = [
+
+    const sampleWorkouts: (InsertWorkout & { userId: string })[] = [
       {
-        id: randomUUID(),
-        userId: demoUserId,
         exerciseType: "Running",
         duration: 30,
         calories: 240,
         intensity: "medium",
         notes: "Morning jog in the park",
-        date: new Date(startOfWeek.getTime() + 1 * 24 * 60 * 60 * 1000), // Tuesday
+        date: new Date(startOfWeek.getTime() + 1 * 24 * 60 * 60 * 1000),
+        userId: demoUserId,
       },
       {
-        id: randomUUID(),
-        userId: demoUserId,
         exerciseType: "Yoga",
         duration: 45,
         calories: 135,
         intensity: "low",
         notes: "Relaxing evening session",
-        date: new Date(startOfWeek.getTime() + 3 * 24 * 60 * 60 * 1000), // Thursday
+        date: new Date(startOfWeek.getTime() + 3 * 24 * 60 * 60 * 1000),
+        userId: demoUserId,
       },
       {
-        id: randomUUID(),
-        userId: demoUserId,
         exerciseType: "HIIT",
         duration: 20,
         calories: 240,
         intensity: "high",
         notes: "Intense workout session",
-        date: new Date(startOfWeek.getTime() + 5 * 24 * 60 * 60 * 1000), // Saturday
+        date: new Date(startOfWeek.getTime() + 5 * 24 * 60 * 60 * 1000),
+        userId: demoUserId,
       },
       {
-        id: randomUUID(),
-        userId: demoUserId,
         exerciseType: "Weight Training",
         duration: 40,
         calories: 280,
         intensity: "high",
         notes: "Strength training session",
-        date: new Date(startOfWeek.getTime() + 0 * 24 * 60 * 60 * 1000), // Monday
+        date: new Date(startOfWeek.getTime() + 0 * 24 * 60 * 60 * 1000),
+        userId: demoUserId,
       },
     ];
 
-    // Sample goals
-    const sampleGoals: Goal[] = [
-      {
-        id: randomUUID(),
-        userId: demoUserId,
-        type: "daily_calories",
-        target: 500,
-        current: 240,
-        date: new Date(),
-      },
-      {
-        id: randomUUID(),
-        userId: demoUserId,
-        type: "weekly_workouts",
-        target: 5,
-        current: 3,
-        date: new Date(),
-      },
+    for (const workout of sampleWorkouts) {
+      try {
+        await db.insert(workouts).values(workout);
+      } catch (error) {
+        // Workout might already exist
+      }
+    }
+
+    const sampleGoals: (InsertGoal & { userId: string })[] = [
+      { type: "calories", target: 500, userId: demoUserId },
+      { type: "workouts", target: 5, userId: demoUserId },
     ];
 
-    this.setInStorage(STORAGE_FILES.WORKOUTS, sampleWorkouts);
-    this.setInStorage(STORAGE_FILES.GOALS, sampleGoals);
+    for (const goal of sampleGoals) {
+      try {
+        await db.insert(goals).values(goal);
+      } catch (error) {
+        // Goal might already exist
+      }
+    }
   }
 
   async getUser(id: string): Promise<User | undefined> {
-    const users = this.getFromStorage<User>(STORAGE_FILES.USERS);
-    return this.findById(users, id);
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const users = this.getFromStorage<User>(STORAGE_FILES.USERS);
-    return users.find(user => user.username === username);
+    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    return result[0];
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const users = this.getFromStorage<User>(STORAGE_FILES.USERS);
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    users.push(user);
-    this.setInStorage(STORAGE_FILES.USERS, users);
-    return user;
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
   }
 
   async getWorkouts(userId: string): Promise<Workout[]> {
-    const workouts = this.getFromStorage<Workout>(STORAGE_FILES.WORKOUTS);
-    return this.filterByUserId(workouts, userId)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const result = await db.select()
+      .from(workouts)
+      .where(eq(workouts.userId, userId))
+      .orderBy(desc(workouts.date));
+    return result;
   }
 
   async createWorkout(userId: string, insertWorkout: InsertWorkout): Promise<Workout> {
-    const workouts = this.getFromStorage<Workout>(STORAGE_FILES.WORKOUTS);
-    const id = randomUUID();
-    const workout: Workout = { 
+    const result = await db.insert(workouts).values({
       ...insertWorkout,
-      notes: insertWorkout.notes || null,
-      id, 
-      userId, 
-      date: insertWorkout.date ? new Date(insertWorkout.date) : new Date() 
-    };
-    workouts.push(workout);
-    this.setInStorage(STORAGE_FILES.WORKOUTS, workouts);
-    return workout;
+      userId,
+      date: insertWorkout.date || new Date(),
+    }).returning();
+    return result[0];
   }
 
   async updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<Workout | undefined> {
-    const workouts = this.getFromStorage<Workout>(STORAGE_FILES.WORKOUTS);
-    const workoutIndex = workouts.findIndex(w => w.id === workoutId);
-    if (workoutIndex >= 0) {
-      const updatedWorkout = { ...workouts[workoutIndex], ...updates };
-      workouts[workoutIndex] = updatedWorkout;
-      this.setInStorage(STORAGE_FILES.WORKOUTS, workouts);
-      return updatedWorkout;
-    }
-    return undefined;
+    const result = await db.update(workouts)
+      .set(updates)
+      .where(eq(workouts.id, workoutId))
+      .returning();
+    return result[0];
   }
 
   async getWorkoutsByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Workout[]> {
-    const workouts = this.getFromStorage<Workout>(STORAGE_FILES.WORKOUTS);
-    
-    // Fix the endDate to be end of day if it's not already
-    const fixedEndDate = new Date(endDate);
-    if (fixedEndDate.getHours() !== 23) {
-      fixedEndDate.setHours(23, 59, 59, 999);
-    }
-    
-    console.log('Date range filter:', startDate.toISOString(), 'to', fixedEndDate.toISOString());
-    
-    return workouts.filter(workout => {
-      if (workout.userId !== userId) return false;
-      
-      const workoutDate = new Date(workout.date);
-      const inRange = workoutDate >= startDate && workoutDate <= fixedEndDate;
-      
-      console.log(`Workout ${workout.exerciseType} on ${workoutDate.toISOString()}: ${inRange ? 'INCLUDED' : 'EXCLUDED'}`);
-      return inRange;
-    });
+    const result = await db.select()
+      .from(workouts)
+      .where(
+        and(
+          eq(workouts.userId, userId),
+          gte(workouts.date, startDate),
+          lte(workouts.date, endDate)
+        )
+      );
+    return result;
   }
 
   async getExercises(): Promise<Exercise[]> {
-    return this.getFromStorage<Exercise>(STORAGE_FILES.EXERCISES);
+    const result = await db.select().from(exercises).where(eq(exercises.userId, "demo-user"));
+    return result;
   }
 
   async createExercise(insertExercise: InsertExercise): Promise<Exercise> {
-    const exercises = this.getFromStorage<Exercise>(STORAGE_FILES.EXERCISES);
-    const id = randomUUID();
-    const exercise: Exercise = { ...insertExercise, id };
-    exercises.push(exercise);
-    this.setInStorage(STORAGE_FILES.EXERCISES, exercises);
-    return exercise;
+    const result = await db.insert(exercises).values({
+      ...insertExercise,
+      userId: "demo-user",
+    }).returning();
+    return result[0];
   }
 
   async getGoals(userId: string): Promise<Goal[]> {
-    const goals = this.getFromStorage<Goal>(STORAGE_FILES.GOALS);
-    return this.filterByUserId(goals, userId);
+    const result = await db.select().from(goals).where(eq(goals.userId, userId));
+    return result;
   }
 
   async createGoal(userId: string, insertGoal: InsertGoal): Promise<Goal> {
-    const goals = this.getFromStorage<Goal>(STORAGE_FILES.GOALS);
-    const id = randomUUID();
-    const goal: Goal = { 
-      ...insertGoal, 
-      id, 
-      userId, 
+    const result = await db.insert(goals).values({
+      ...insertGoal,
+      userId,
       current: 0,
-      date: new Date() 
-    };
-    goals.push(goal);
-    this.setInStorage(STORAGE_FILES.GOALS, goals);
-    return goal;
+      date: new Date(),
+    }).returning();
+    return result[0];
   }
 
   async updateGoal(goalId: string, current: number): Promise<Goal | undefined> {
-    const goals = this.getFromStorage<Goal>(STORAGE_FILES.GOALS);
-    const goalIndex = goals.findIndex(g => g.id === goalId);
-    if (goalIndex >= 0) {
-      goals[goalIndex].current = current;
-      this.setInStorage(STORAGE_FILES.GOALS, goals);
-      return goals[goalIndex];
-    }
-    return undefined;
+    const result = await db.update(goals)
+      .set({ current })
+      .where(eq(goals.id, goalId))
+      .returning();
+    return result[0];
   }
 }
 
-export const storage = new FileStorage();
+export const storage = new DatabaseStorage();
