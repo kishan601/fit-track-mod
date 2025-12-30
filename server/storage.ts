@@ -1,4 +1,5 @@
 import { type User, type InsertUser, type Workout, type InsertWorkout, type Exercise, type InsertExercise, type Goal, type InsertGoal, users, workouts, exercises, goals } from "@shared/schema";
+import * as schema from "@shared/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import pg from "pg";
@@ -27,10 +28,8 @@ if (!dbUrl) {
   throw new Error("EXTERNAL_DATABASE_URL, NEON_DATABASE_URL or DATABASE_URL must be set");
 }
 
-const client = new pg.Client({ connectionString: dbUrl });
-client.connect();
-
-const db = drizzle(client);
+const pool = new pg.Pool({ connectionString: dbUrl });
+const db = drizzle(pool, { schema });
 
 export class DatabaseStorage implements IStorage {
   private seeded = false;
