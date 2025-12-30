@@ -23,9 +23,9 @@ export interface IStorage {
 }
 
 // Initialize database client
-const dbUrl = process.env.EXTERNAL_DATABASE_URL || process.env.NEON_DATABASE_URL || process.env.DATABASE_URL;
+const dbUrl = process.env.DATABASE_URL;
 if (!dbUrl) {
-  throw new Error("EXTERNAL_DATABASE_URL, NEON_DATABASE_URL or DATABASE_URL must be set");
+  throw new Error("DATABASE_URL must be set");
 }
 
 const pool = new pg.Pool({ connectionString: dbUrl });
