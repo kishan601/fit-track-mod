@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertWorkoutSchema, insertExerciseSchema, insertGoalSchema } from "@shared/schema";
+import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -20,10 +21,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/workouts", async (req, res) => {
     try {
       const userId = "demo-user";
+      console.log('Received workout data:', JSON.stringify(req.body, null, 2));
       const validatedData = insertWorkoutSchema.parse(req.body);
       const workout = await storage.createWorkout(userId, validatedData);
       res.json(workout);
     } catch (error: any) {
+      console.error('Workout validation/creation error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid workout data", 
+          errors: error.errors 
+        });
+      }
       res.status(400).json({ message: "Invalid workout data" });
     }
   });

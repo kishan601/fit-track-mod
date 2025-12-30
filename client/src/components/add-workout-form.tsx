@@ -37,12 +37,12 @@ const workoutSchema = z.object({
 type WorkoutFormData = z.infer<typeof workoutSchema>;
 
 const exerciseOptions = [
-  { value: "running", label: "🏃‍♂️ Running", emoji: "🏃‍♂️" },
-  { value: "strength", label: "💪 Strength Training", emoji: "💪" },
-  { value: "yoga", label: "🧘‍♀️ Yoga", emoji: "🧘‍♀️" },
-  { value: "cycling", label: "🚴‍♂️ Cycling", emoji: "🚴‍♂️" },
-  { value: "swimming", label: "🏊‍♂️ Swimming", emoji: "🏊‍♂️" },
-  { value: "hiit", label: "⚡ HIIT", emoji: "⚡" },
+  { value: "Running", label: "🏃‍♂️ Running", emoji: "🏃‍♂️" },
+  { value: "Weight Training", label: "💪 Strength Training", emoji: "💪" },
+  { value: "Yoga", label: "🧘‍♀️ Yoga", emoji: "🧘‍♀️" },
+  { value: "Cycling", label: "🚴‍♂️ Cycling", emoji: "🚴‍♂️" },
+  { value: "Swimming", label: "🏊‍♂️ Swimming", emoji: "🏊‍♂️" },
+  { value: "HIIT", label: "⚡ HIIT", emoji: "⚡" },
 ];
 
 export function AddWorkoutForm() {
