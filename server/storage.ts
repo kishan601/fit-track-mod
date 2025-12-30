@@ -79,7 +79,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async seedSampleData(): Promise<void> {
+    // Ensure demo user exists
     const demoUserId = "demo-user";
+    try {
+      const existingUser = await this.getUser(demoUserId);
+      if (!existingUser) {
+        // Use onConflictDoNothing to safely handle existing users
+        await db.insert(users).values({
+          id: demoUserId,
+          username: "demo",
+          password: "password"
+        }).onConflictDoNothing();
+      }
+    } catch (error) {
+      console.error("Failed to ensure demo user exists:", error);
+    }
+
     const now = new Date();
     
     const currentDay = now.getDay();
