@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Edit2, Clock } from "lucide-react";
+import { Plus, Edit2, Clock, LogOut } from "lucide-react";
 import { Header } from "@/components/header";
 import { AddWorkoutForm } from "@/components/add-workout-form";
 import { WeeklyProgress } from "@/components/weekly-progress";
@@ -9,10 +9,12 @@ import { FitnessGoals } from "@/components/fitness-goals";
 import { ExerciseLibrary } from "@/components/exercise-library";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
 import type { Workout, Goal } from "@shared/schema";
 
 export default function Dashboard() {
-  const [userName, setUserName] = useState("Alex");
+  const { user, logoutMutation } = useAuth();
+  const userName = user?.username || "Alex";
   const [isEditingName, setIsEditingName] = useState(false);
   
   const { data: workouts } = useQuery<Workout[]>({
@@ -70,12 +72,9 @@ export default function Dashboard() {
 
   const todayStats = getTodayStats();
 
-  // Calculate real goals achievement instead of hardcoded 3/4! 👑
-  // *SLAP* "Queen needs to work for people!" 😂
   const getGoalsAchievement = () => {
     if (!goals || !Array.isArray(goals) || goals.length === 0) return { achieved: 0, total: 0, percentage: 0 };
 
-    // Define realistic goal targets based on today's stats
     const dailyGoals = [
       { name: "Daily Calories", target: 300, current: todayStats.calories },
       { name: "Daily Workouts", target: 1, current: todayStats.workouts },
@@ -105,11 +104,11 @@ export default function Dashboard() {
                   Welcome back, {isEditingName ? (
                     <Input
                       value={userName}
-                      onChange={(e) => setUserName(e.target.value)}
                       onKeyDown={handleNameSave}
                       onBlur={() => setIsEditingName(false)}
                       className="inline-block w-auto min-w-[100px] text-blue-500 text-3xl font-bold bg-transparent border-0 border-b-2 border-blue-500 rounded-none px-1 py-0 h-auto focus-visible:ring-0"
                       autoFocus
+                      readOnly
                     />
                   ) : (
                     <span className="text-blue-500">{userName}</span>
@@ -118,11 +117,11 @@ export default function Dashboard() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleNameEdit}
-                  className="h-8 w-8 p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors"
-                  data-testid="button-edit-name"
+                  onClick={() => logoutMutation.mutate()}
+                  className="h-8 w-8 p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-full transition-colors"
+                  title="Logout"
                 >
-                  <Edit2 size={16} className="text-blue-500" />
+                  <LogOut size={16} className="text-red-500" />
                 </Button>
               </div>
               <p className="text-muted-foreground">Let's crush your fitness goals today</p>
