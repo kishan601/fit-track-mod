@@ -8,9 +8,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Workouts endpoints
   app.get("/api/workouts", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
-      // For demo purposes, use a default user ID
-      const userId = "demo-user";
+      const userId = req.user!.id;
       const workouts = await storage.getWorkouts(userId);
       res.json(workouts);
     } catch (error) {
@@ -19,8 +19,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/workouts", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
-      const userId = "demo-user";
+      const userId = req.user!.id;
       console.log('Received workout data:', JSON.stringify(req.body, null, 2));
       const validatedData = insertWorkoutSchema.parse(req.body);
       const workout = await storage.createWorkout(userId, validatedData);
@@ -38,6 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.patch("/api/workouts/:id", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
       const { id } = req.params;
       const updates = req.body;
@@ -52,8 +54,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/workouts/weekly", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
-      const userId = "demo-user";
+      const userId = req.user!.id;
       const now = new Date();
       
       // Get start of current week (Monday) - more robust timezone handling
@@ -81,8 +84,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Exercises endpoints
   app.get("/api/exercises", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
-      const exercises = await storage.getExercises();
+      const userId = req.user!.id;
+      const exercises = await storage.getExercises(userId);
       res.json(exercises);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch exercises" });
@@ -90,9 +95,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/exercises", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
+      const userId = req.user!.id;
       const validatedData = insertExerciseSchema.parse(req.body);
-      const exercise = await storage.createExercise(validatedData);
+      const exercise = await storage.createExercise(userId, validatedData);
       res.json(exercise);
     } catch (error) {
       res.status(400).json({ message: "Invalid exercise data" });
@@ -101,8 +108,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Goals endpoints
   app.get("/api/goals", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
-      const userId = "demo-user";
+      const userId = req.user!.id;
       const goals = await storage.getGoals(userId);
       res.json(goals);
     } catch (error) {
@@ -111,8 +119,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/goals", async (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
-      const userId = "demo-user";
+      const userId = req.user!.id;
       const validatedData = insertGoalSchema.parse(req.body);
       const goal = await storage.createGoal(userId, validatedData);
       res.json(goal);

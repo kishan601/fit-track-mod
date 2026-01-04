@@ -14,8 +14,8 @@ export interface IStorage {
   updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<Workout | undefined>;
   getWorkoutsByDateRange(userId: string, startDate: Date, endDate: Date): Promise<Workout[]>;
   
-  getExercises(): Promise<Exercise[]>;
-  createExercise(exercise: InsertExercise): Promise<Exercise>;
+  getExercises(userId: string): Promise<Exercise[]>;
+  createExercise(userId: string, exercise: InsertExercise): Promise<Exercise>;
   
   getGoals(userId: string): Promise<Goal[]>;
   createGoal(userId: string, goal: InsertGoal): Promise<Goal>;
@@ -217,15 +217,15 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getExercises(): Promise<Exercise[]> {
-    const result = await db.select().from(exercises).where(eq(exercises.userId, "demo-user"));
+  async getExercises(userId: string): Promise<Exercise[]> {
+    const result = await db.select().from(exercises).where(eq(exercises.userId, userId));
     return result;
   }
 
-  async createExercise(insertExercise: InsertExercise): Promise<Exercise> {
+  async createExercise(userId: string, insertExercise: InsertExercise): Promise<Exercise> {
     const result = await db.insert(exercises).values({
       ...insertExercise,
-      userId: "demo-user",
+      userId,
     }).returning();
     return result[0];
   }
