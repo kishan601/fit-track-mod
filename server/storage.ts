@@ -48,7 +48,8 @@ export class DatabaseStorage implements IStorage {
         return;
       }
       
-      await this.seedExercises();
+      // Seed default exercises for existing demo user
+      await this.seedExercises("demo-user");
       await this.seedSampleData();
       this.seeded = true;
     } catch (error) {
@@ -57,16 +58,16 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  private async seedExercises(): Promise<void> {
+  private async seedExercises(userId: string): Promise<void> {
     const exercisesToSeed: (InsertExercise & { userId: string })[] = [
-      { name: "Running", category: "cardio", caloriesPerMinute: 8, emoji: "🏃‍♂️", userId: "demo-user" },
-      { name: "Push-ups", category: "strength", caloriesPerMinute: 5, emoji: "💪", userId: "demo-user" },
-      { name: "Yoga", category: "flexibility", caloriesPerMinute: 3, emoji: "🧘‍♀️", userId: "demo-user" },
-      { name: "HIIT", category: "cardio", caloriesPerMinute: 12, emoji: "⚡", userId: "demo-user" },
-      { name: "Cycling", category: "cardio", caloriesPerMinute: 6, emoji: "🚴‍♂️", userId: "demo-user" },
-      { name: "Swimming", category: "cardio", caloriesPerMinute: 10, emoji: "🏊‍♂️", userId: "demo-user" },
-      { name: "Weight Training", category: "strength", caloriesPerMinute: 7, emoji: "🏋️‍♂️", userId: "demo-user" },
-      { name: "Pilates", category: "flexibility", caloriesPerMinute: 4, emoji: "🤸‍♀️", userId: "demo-user" },
+      { name: "Running", category: "cardio", caloriesPerMinute: 8, emoji: "🏃‍♂️", userId },
+      { name: "Push-ups", category: "strength", caloriesPerMinute: 5, emoji: "💪", userId },
+      { name: "Yoga", category: "flexibility", caloriesPerMinute: 3, emoji: "🧘‍♀️", userId },
+      { name: "HIIT", category: "cardio", caloriesPerMinute: 12, emoji: "⚡", userId },
+      { name: "Cycling", category: "cardio", caloriesPerMinute: 6, emoji: "🚴‍♂️", userId },
+      { name: "Swimming", category: "cardio", caloriesPerMinute: 10, emoji: "🏊‍♂️", userId },
+      { name: "Weight Training", category: "strength", caloriesPerMinute: 7, emoji: "🏋️‍♂️", userId },
+      { name: "Pilates", category: "flexibility", caloriesPerMinute: 4, emoji: "🤸‍♀️", userId },
     ];
 
     for (const exercise of exercisesToSeed) {
@@ -176,7 +177,9 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const result = await db.insert(users).values(insertUser).returning();
-    return result[0];
+    const newUser = result[0];
+    await this.seedExercises(newUser.id);
+    return newUser;
   }
 
   async getWorkouts(userId: string): Promise<Workout[]> {
