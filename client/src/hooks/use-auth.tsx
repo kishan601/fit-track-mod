@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useMutation, UseQueryResult } from "@tanstack/react-query";
 import { type User, type InsertUser } from "@shared/schema";
-import { apiRequest, queryClient } from "./queryClient";
+import { apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 type AuthContextType = {
